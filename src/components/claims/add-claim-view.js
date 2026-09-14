@@ -64,8 +64,7 @@ const AddClaimView = () => {
 
     return (
         <Box>
-            <Typography variant="overline" color="text.secondary">Nueva solicitud</Typography>
-            <Typography variant="h6" color="primary.dark" sx={{ mb: 1.5 }}>Nuevo reclamo</Typography>
+            <Typography variant="h6" color="primary.dark" sx={{ mb: 1.5 }}>crear nuevo reclamo</Typography>
             <ErrorHandler errors={errorDescriptions} />
             <Card>
                 <Card.Body sx={{ p: 2 }}>

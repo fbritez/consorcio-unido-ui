@@ -23,7 +23,7 @@ const NotificationGeneralView = () => {
                 <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5} sx={{ mb: 3 }}>
                     <Box>
                         <Typography variant="h4" sx={{ color: 'primary.dark', fontSize: { xs: 28, md: 34 } }}>Novedades</Typography>
-                        <Typography variant="body2" color="text.secondary">Resumen de la actividad de tu consorcio</Typography>
+                        <Typography variant="body2" color="text.secondary">Resumen de la actividad en tu consorcio</Typography>
                     </Box>
                     <Chip
                         label={consortium?.name || 'Selecciona un consorcio'}
