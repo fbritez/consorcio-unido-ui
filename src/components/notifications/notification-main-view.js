@@ -25,12 +25,6 @@ const NotificationGeneralView = () => {
                         <Typography variant="h4" sx={{ color: 'primary.dark', fontSize: { xs: 28, md: 34 } }}>Novedades</Typography>
                         <Typography variant="body2" color="text.secondary">Resumen de la actividad en tu consorcio</Typography>
                     </Box>
-                    <Chip
-                        label={consortium?.name || 'Selecciona un consorcio'}
-                        color={consortium ? 'primary' : 'default'}
-                        variant={consortium ? 'filled' : 'outlined'}
-                        sx={{ maxWidth: '100%' }}
-                    />
                 </Stack>
                 <Grid container spacing={2.5} alignItems="flex-start">
                     <Grid item xs={12} md={3}>
