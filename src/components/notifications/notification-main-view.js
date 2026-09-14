@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Box, Chip, Container, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Container, Grid, Paper, Stack, Typography, Divider } from '@mui/material';
 import authenticationHandler from '../login/authentication-handler';
 import { ConsortiumContext } from '../consortium/consortium-provider/consortium-provider';
 import NotificationView from './notification-view';
@@ -35,7 +35,6 @@ const NotificationGeneralView = () => {
                 <Grid container spacing={2.5} alignItems="flex-start">
                     <Grid item xs={12} md={3}>
                         <Paper sx={{ p: 2, backgroundColor: '#FFFDF8' }}>
-                            <Typography variant="overline" color="text.secondary">Estado financiero</Typography>
                             <Typography variant="h6" sx={{ mb: 1.5, color: 'primary.dark' }}>Mis expensas</Typography>
                             <ExpensesReceiptList action={() => setPath(expenses())} />
                         </Paper>
@@ -61,14 +60,20 @@ const NotificationGeneralView = () => {
                     </Grid>
                     <Grid item xs={12} md={3}>
                         <Paper sx={{ p: 2, backgroundColor: '#FFFDF8' }}>
-                            <Typography variant="overline" color="text.secondary">Seguimiento</Typography>
-                            <Typography variant="h6" sx={{ mb: 1.5, color: 'primary.dark' }}>Reclamos pendientes</Typography>
+                            <Typography variant="h6" sx={{ mb: 1.5, color: 'primary.dark' }}>Seguimiento de reclamos</Typography>
                             {consortium ? <>
-                                {!consortium.isAdministrator(user) && <Box sx={{ mb: 2 }}><AddClaimView /></Box>}
-                                <ClaimListView
-                                    sideEffect={() => setPath(claims())}
-                                    filterFuction={(claim) => claim.state !== 'Close'}
-                                />
+                                <Box>
+                                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600 }}>Crear nuevo reclamo</Typography>
+                                    {!consortium.isAdministrator(user) && <Box sx={{ mb: 2 }}><AddClaimView /></Box>}
+                                </Box>
+                                <Divider sx={{ my: 3, borderColor: 'rgba(44, 64, 104, 0.12)' }} />
+                                <Box>
+                                    <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600 }}>Mis reclamos activos</Typography>
+                                    <ClaimListView
+                                        sideEffect={() => setPath(claims())}
+                                        filterFuction={(claim) => claim.state !== 'Close'}
+                                    />
+                                </Box>
                             </> : <Typography variant="body2" color="text.secondary">Selecciona un consorcio para consultar tus reclamos.</Typography>}
                         </Paper>
                     </Grid>
