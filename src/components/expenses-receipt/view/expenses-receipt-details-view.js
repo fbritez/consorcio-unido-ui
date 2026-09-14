@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import ExpensesReceiptService from '../../../services/expense-receipt-service/expense-receipt-service';
 import ExpenseItemView from '../expense-item/expense-item'
+import { Box, Typography } from '@mui/material';
 import { Button, Tabs, Tab, Alert, Col, Row, Modal } from '../../common/mui-components';
 import ExpenseDetails from '../expense-details/expense-details';
 import { ExpensesReceiptContext } from '../expenses-receipt-provider/expenses-receipt-provider';
@@ -186,8 +187,12 @@ const ExpensesReceiptDetailView = (props) => {
                     </Tab>
                     {
                         !expensesReceipt.isOpen() &&
-                        <Tab eventKey="memberStatus" title="Pagos">
+                        <Tab eventKey="memberStatus" title="Seguimiento de pagos">
                             <div style={{ marginTop: '3%' }}>
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="h6" color="primary.dark">Seguimiento de pagos</Typography>
+                                    <Typography variant="body2" color="text.secondary">Consulta el estado de cada unidad y registra los pagos recibidos.</Typography>
+                                </Box>
                                 <PaymentStatusView expensesReceipt={expensesReceipt}/>
                             </div>
                         </Tab>
@@ -254,9 +259,12 @@ const MemberExpensesReceiptDetailView = () => {
                         />
                     </div>
                 </Tab>
-                <Tab eventKey="expenseDetails" title="Pagos">
+                <Tab eventKey="expenseDetails" title="Seguimiento">
                     <div style={{ marginTop: '3%' }}>
-                        <p>Detalle de Pagos por Unidad funcional</p>
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="h6" color="primary.dark">Seguimiento de pagos</Typography>
+                            <Typography variant="body2" color="text.secondary">Detalle de pagos por unidad funcional.</Typography>
+                        </Box>
                         <MemberPaymentStatusView expensesReceipt={expensesReceipt}/>
                     </div>
                 </Tab>

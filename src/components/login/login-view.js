@@ -7,6 +7,7 @@ import loginService from '../../services/login-service/login-service';
 import userService from '../../services/user-service/user-service';
 import { PathContext } from '../main/path-provider';
 import { notifications } from '../main/routes';
+import { EmailField, isValidEmail } from '../common/email-field';
 
 const service = loginService;
 
@@ -24,6 +25,12 @@ function Login() {
     const { setPath } = useContext(PathContext);
 
     const validateEmail = async (email) => {
+        if (!isValidEmail(email || '')) {
+            setValidEmail(false);
+            setLoaded(true);
+            return;
+        }
+
         let response = await service.validateEmail(email);
         setValidEmail(response.validEmail);
         setFirstLogin(response.firstLogin);
@@ -76,7 +83,7 @@ function Login() {
                         </Card.Title>
                             <Card.Text>
                                 <Form.Group controlId="">
-                                    <Form.Control data-testid='email' type="text" placeholder="email" onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
+                                    <EmailField data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
                                 </Form.Group>
                                 {
                                     !validEmail && loaded &&
@@ -88,7 +95,7 @@ function Login() {
                                 }
                                 {!validEmail &&
                                     <div>
-                                        <Button data-testid='siguiente' sx={{ mb: 1 }} onClick={() => validateEmail(email)}>
+                                        <Button data-testid='siguiente' sx={{ mb: 1 }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
                                             Siguiente
                                         </Button>
                                     </div>

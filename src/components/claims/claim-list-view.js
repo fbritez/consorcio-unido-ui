@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { ListGroup } from '../common/mui-components';
+import { Box, List, ListItemButton, ListItemText, Typography } from '@mui/material';
 import { ConsortiumContext } from '../consortium/consortium-provider/consortium-provider';
 import { UserContext } from '../user-provider/user-provider';
 import claimService from '../../services/claims-service/claims-service';
@@ -40,27 +40,22 @@ const ClaimListView = props => {
     }
 
     return (
-        <div className='scrollbar-dinamically'>
-            <div style={{ marginTop: '3%', fontSize: 'small' }}>
-                <ListGroup>
-                    {claims?.map(claim => {
-                        return (
-                            <ListGroup.Item
-                                action
-                                onClick={() => handleClaim(claim)}
-                                as='div'>
-                                <div>
-                                    {claim.identifier}
-                                    {' - '}
-                                    <StateBadge state={claim?.state}/>
-                                </div>
-
-                            </ListGroup.Item>
-                        )
-                    })}
-                </ListGroup>
-            </div>
-        </div>
+        <Box className='scrollbar-dinamically'>
+            <List disablePadding>
+                {claims?.map(currentClaim => <ListItemButton
+                    key={currentClaim.identifier}
+                    selected={claim?.identifier === currentClaim.identifier}
+                    onClick={() => handleClaim(currentClaim)}
+                    sx={{ borderRadius: 1.5, mb: 0.75, px: 1.25, display: 'block', '&.Mui-selected': { backgroundColor: 'rgba(44, 64, 104, 0.1)' } }}
+                >
+                    <ListItemText
+                        primary={<Typography variant="body2" fontWeight={700} noWrap>{currentClaim.identifier}</Typography>}
+                        secondary={<Box sx={{ mt: 0.5 }}><StateBadge state={currentClaim?.state} /></Box>}
+                    />
+                </ListItemButton>)}
+                {!claims?.length && <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>No hay reclamos para mostrar.</Typography>}
+            </List>
+        </Box>
     )
 }
 

@@ -19,7 +19,7 @@ const NotificationGeneralView = () => {
 
     return (
         <Box sx={{ minHeight: 'calc(100vh - 72px)', backgroundColor: 'background.default' }}>
-            <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 }, px: { xs: 2, md: 4 } }}>
+            <Container maxWidth="xl" sx={{ py: { xs: 1, md: 1.5 }, px: { xs: 2, md: 4 } }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5} sx={{ mb: 3 }}>
                     <Box>
                         <Typography variant="h4" sx={{ color: 'primary.dark', fontSize: { xs: 28, md: 34 } }}>Novedades</Typography>
@@ -47,7 +47,6 @@ const NotificationGeneralView = () => {
                                     <Typography variant="overline" color="text.secondary">Comunicaciones</Typography>
                                     <Typography variant="h6" sx={{ color: 'primary.dark' }}>Actividad reciente</Typography>
                                 </Box>
-                                {consortium && <Chip label="Actualizado" size="small" color="secondary" />}
                             </Stack>
                             {consortium ?
                                 <Box className="scrollbar-dinamically">

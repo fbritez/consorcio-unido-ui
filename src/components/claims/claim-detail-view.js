@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { Card, Button, Row } from '../common/mui-components';
+import { Box, Divider, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { Card } from '../common/mui-components';
 import { BasicAddItemButton, DownloadButton, FileUploaderButton } from '../common/buttons';
 import FileSelectedItem from '../utils/file-selected-ite';
 import { downloadTicket } from '../utils/download-files';
@@ -84,84 +86,70 @@ const ClaimDetailsView = () => {
     const detectOwnerDescription = owner => consortium.isAdministrator({ email: owner }) ? 'Administración' : claim.owner
 
     return (
-        <div className='claim' style={{ marginBottom: '1%' }}>
+        <Box sx={{ mb: 1 }}>
             <ErrorHandler errors={errorDescriptions} />
-            <Card>
-                <Card.Body style={{ marginLeft: '5%', marginRight: '5%' }}>
-                    <Card.Subtitle style={{ fontSize: 'xx-small' }}>
-                        {claim?.identifier}
-                        {
-                            !isClose() && 
-                            <div className='right'>
-                                <Button
-                                    variant="light"
-                                    style={{ fontSize: 'xx-small' }}
-                                    onClick={close}>
-                                    Cancelar
-                                </Button>
-                            </div>
-                        }
-                    </Card.Subtitle>
-                    <Card.Subtitle style={{ marginTop: '1%', fontSize: 'small' }}>
-                        {'Unidad Funcional: '}
-                        <strong>{claim.owner}</strong>
-                    </Card.Subtitle>
-                    <div>
-                        <div className='left'>{claim?.title}</div>
-                        <div className='right'><StateBadge state={claim?.state} /></div>
-                    </div>
-                    <Card.Text style={{ marginTop: '7%', fontSize: 'small' }}>
+            <Card sx={{ overflow: 'hidden' }}>
+                <Card.Body sx={{ p: { xs: 2, md: 3 } }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                        <Box>
+                            <Typography variant="overline" color="text.secondary">{claim?.identifier}</Typography>
+                            <Typography variant="h6" color="primary.dark">{claim?.title}</Typography>
+                            <Typography variant="body2" color="text.secondary">Unidad funcional: {claim.owner}</Typography>
+                        </Box>
+                        <Stack alignItems="flex-end" spacing={1}>
+                            <StateBadge state={claim?.state} />
+                            {!isClose() && <Tooltip title="Cerrar reclamo"><IconButton aria-label="Cerrar reclamo" size="small" onClick={close} color="error"><Close /></IconButton></Tooltip>}
+                        </Stack>
+                    </Stack>
+                    <Divider sx={{ my: 2 }} />
+                    <Box>
                         <React.Fragment>
-                            <textarea
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                size="small"
+                                label="Agregar respuesta"
                                 data-testid='message'
-                                style={{ fontSize: 'smaller' }}
-                                type="text"
-                                id="formGroupExampleInput"
-                                value={message}
-                                placeholder={''}
+                                value={message || ''}
                                 disabled={isClose()}
                                 onChange={event => setMessage(event.target.value)}
                             />
-                            <div style={{ marginTop: '1%' }}>
+                            <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
                                 <BasicAddItemButton
-                                    style={{ fontSize: 'x-small' }}
-                                    description={'Agregar'}
+                                    description={'Enviar respuesta'}
                                     disabled={!message}
                                     onClick={() => save()}
                                 />
-                                <FileUploaderButton style={{ fontSize: 'x-small' }} disabled={isClose()} handleFile={onFileChange} />
+                                <FileUploaderButton disabled={isClose()} handleFile={onFileChange} />
                                 <FileSelectedItem selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
-                            </div>
+                            </Stack>
                         </React.Fragment>
-                    </Card.Text>
-                    <Card.Text style={{ fontSize: 'small' }}>
-                        <strong>Actividad</strong>
-                        <hr />
+                    </Box>
+                    <Box sx={{ mt: 3 }}>
+                        <Typography variant="subtitle1" fontWeight={700} color="primary.dark">Actividad</Typography>
+                        <Divider sx={{ my: 1.5 }} />
                         {
                             claim?.messages?.map(message => {
                                 return (
-                                    <div>
-                                        <Row>
-                                            <div className='left'>
-                                                {detectAdminIcon(message.owner)}
-                                                {'  '}
-                                                {detectOwnerDescription(message.owner)}
-                                            </div>
-                                            <div className='right'>{message.date}</div>
-                                        </Row>
-                                        <text style={{ whiteSpace: 'pre-line' }}>{message.message}</text>
-                                        <div className='right'>
+                                    <Box key={`${message.owner}-${message.date}-${message.message}`} sx={{ py: 1.5 }}>
+                                        <Stack direction="row" justifyContent="space-between" spacing={2}>
+                                            <Typography variant="body2" fontWeight={700}>{detectAdminIcon(message.owner)} {' '}{detectOwnerDescription(message.owner)}</Typography>
+                                            <Typography variant="caption" color="text.secondary">{message.date}</Typography>
+                                        </Stack>
+                                        <Typography component="div" variant="body2" sx={{ whiteSpace: 'pre-line', mt: 0.75 }}>{message.message}</Typography>
+                                        <Stack direction="row" justifyContent="flex-end">
                                             {message.filename && <DownloadButton onClick={() => downloadTicket(message.filename)} />}
-                                        </div>
-                                        <hr />
-                                    </div>
+                                        </Stack>
+                                        <Divider sx={{ mt: 1.5 }} />
+                                    </Box>
                                 )
                             })
                         }
-                    </Card.Text>
+                    </Box>
                 </Card.Body>
             </Card>
-        </div >
+        </Box>
     )
 }
 

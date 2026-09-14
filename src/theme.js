@@ -24,7 +24,14 @@ const theme = createTheme({
         MuiButton: {
             defaultProps: { disableElevation: true },
             styleOverrides: {
-                root: { borderRadius: 8, paddingInline: 16, minHeight: 40 },
+                root: {
+                    borderRadius: 8,
+                    paddingInline: 16,
+                    minHeight: 40,
+                    '&.MuiButton-containedPrimary:hover': { backgroundColor: '#1B2945' },
+                    '&.MuiButton-outlinedPrimary:hover': { backgroundColor: 'rgba(44, 64, 104, 0.08)' },
+                    '&.Mui-focusVisible': { outline: '3px solid rgba(82, 120, 197, 0.35)', outlineOffset: 2 },
+                },
             },
         },
         MuiCard: {

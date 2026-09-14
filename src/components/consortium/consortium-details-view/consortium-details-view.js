@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { Box, Button as MuiButton, Divider, Stack, TextField, Typography } from '@mui/material';
 import { ConsortiumContext } from '../consortium-provider/consortium-provider';
 import consortiumService from '../../../services/consortium-service/consortium-service';
 import ConsortiumMembersTable from '../consortium-members-table/consortium-members-table';
@@ -17,31 +18,38 @@ const BasicConsortiumDetails = props => {
     const address = () => consortium ? consortium.address : ''
 
     return (
-        <div style={{fontSize: 'smaller'}}>
-            <label htmlFor="formGroupExampleInput" style={{ marginTop: '1%' }}>Nombre / Identificardor del consorcio</label>
-            <input
+        <Box>
+            <Stack spacing={2.5}>
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={700} color="primary.dark">Datos básicos</Typography>
+                    <Typography variant="body2" color="text.secondary">Actualiza la información que identifica al consorcio.</Typography>
+                </Box>
+                <TextField
+                    fullWidth
+                    size="small"
+                    label="Nombre o identificador del consorcio"
                 data-testid='consortium-name'
                 type="text"
-                id="formGroupExampleInput"
                 value={name()}
                 onChange={event => props.handleChange({ 'name': event.target.value })}
             />
-
-            <label htmlFor="formGroupExampleInput" style={{ marginTop: '1%' }}>Dirección</label>
-            <input
+                <TextField
+                    fullWidth
+                    size="small"
+                    label="Dirección"
                 data-testid='consortium-address'
                 type="text"
-                id="formGroupExampleInput"
                 value={address()}
                 onChange={event => props.handleChange({ 'address': event.target.value })}
             />
-            <hr />
-            <div style={{ marginBottom: '2%' }}>
-                Unidades Funcionales
-            </div>
-            <ConsortiumMembersTable setMembers={props.setUpdatedMembers} shouldRefresh={props.shouldRefresh} />
-            <hr />
-        </div>
+                <Divider />
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={700} color="primary.dark">Unidades funcionales</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>Administra los miembros asociados a este consorcio.</Typography>
+                    <ConsortiumMembersTable setMembers={props.setUpdatedMembers} shouldRefresh={props.shouldRefresh} />
+                </Box>
+            </Stack>
+        </Box>
     )
 }
 
@@ -61,43 +69,28 @@ const AdvancedConsortiumDetails = props => {
     const memberValue = () => props.settings?.memberValues ? props.settings.memberValues : ' ';
 
     return (
-        <div>
-            <label htmlFor="formGroupExampleInput" style={{ marginTop: '1%', fontSize: 'small' }}>
-                Set cantidad de miembros por tabla
-            </label>
-            <input
+        <Box>
+            <Stack spacing={2.5}>
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={700} color="primary.dark">Configuración avanzada</Typography>
+                    <Typography variant="body2" color="text.secondary">Define cómo se organiza la información de los miembros.</Typography>
+                </Box>
+                <TextField
+                    fullWidth
+                    size="small"
+                    label="Cantidad de miembros por tabla"
                 type="number"
-                id="formGroupExampleInput"
-                value={memberValue()}
-                onChange={event => props.handleSettingChange({ 'memberValues': event.target.value })}
-            />
+                    value={memberValue()}
+                    onChange={event => props.handleSettingChange({ 'memberValues': event.target.value })}
+                />
 
-            {
-                consortium.id && 
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <hr />
-                    <Card className='delete-consortium-card'
-                        style={{ width: '60rem', marginTop: '10px', textAlign: 'center' }}>
-                        <div>
-                            <Card.Body>
-                                <Card.Text>
-                                    <p><strong>{`Eliminar ${consortium.name}`}</strong></p>
-                                    <p>Tenga que cuenta que una vez eliminado no podra revertir esta acción.</p>
-                                    <div style={{ marginTop: '1%', marginBotton: '2%' }}>
-                                        <Button
-                                            className='remove-button'
-                                            onClick={() => disableConsortium()}>
-                                            Eliminar
-                                    </Button>
-                                    </div>
-                                </Card.Text>
-                            </Card.Body>
-                        </div>
-                    </Card>
-                </div>
-            }
-            <hr />
-        </div>
+                {consortium.id && <Box sx={{ mt: 1, p: 2, border: '1px solid', borderColor: 'error.light', borderRadius: 1.5, backgroundColor: 'rgba(211, 47, 47, 0.04)' }}>
+                    <Typography variant="subtitle2" color="error.main" fontWeight={700}>Zona de peligro</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1.5 }}>Desactivar este consorcio no se puede revertir.</Typography>
+                    <MuiButton variant="outlined" color="error" onClick={disableConsortium}>Desactivar consorcio</MuiButton>
+                </Box>}
+            </Stack>
+        </Box>
     )
 }
 
@@ -155,16 +148,9 @@ const ConsortiumDetails = (props) => {
     }
 
     return (
-        <div>
-            <div>
-                {
-                    actionDescription ?
-                        <Alert variant={actionDescription.action}>
-                            {actionDescription.description}
-                        </Alert> : ''
-                }
-            </div>
-            <div>
+        <Box>
+            {actionDescription && <Alert variant={actionDescription.action}>{actionDescription.description}</Alert>}
+            <Box sx={{ mt: actionDescription ? 2 : 0 }}>
                 <Tabs defaultActiveKey="basics">
                     <Tab eventKey="basics" title="Basicos">
                         <BasicConsortiumDetails
@@ -181,11 +167,11 @@ const ConsortiumDetails = (props) => {
                             handleSettingChange={handleSettingChange} />
                     </Tab>
                 </Tabs>
-                <Button data-testid='save-button' className="add-button" onClick={handleSubmit}>
-                    Guardar
-                </Button>
-            </div>
-        </div>
+                <MuiButton data-testid='save-button' variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
+                    Guardar cambios
+                </MuiButton>
+            </Box>
+        </Box>
     )
 }
 

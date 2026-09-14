@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { Card, Form } from '../common/mui-components';
+import { Box, Stack, TextField, Typography } from '@mui/material';
+import { Card } from '../common/mui-components';
 import { BasicAddItemButton, FileUploaderButton } from '../common/buttons';
 import claimService from '../../services/claims-service/claims-service';
 import imageService from '../../services/image-service/image-service';
@@ -16,7 +17,7 @@ const AddClaimView = () => {
     const { user } = useContext(UserContext);
     const { setClaim } = useContext(ClaimContext);
     const [selectedFile, setSelectedFile] = useState();
-    const [message, setMessage] = useState({ title: '', desciption: '' });
+    const [message, setMessage] = useState({ title: '', message: '' });
     const [wrongTransaction, setWrongTransaction] = useState(false);
 
     const handleChange = (newValue) => {
@@ -59,43 +60,44 @@ const AddClaimView = () => {
         description: 'La operacion no pudo ser completada. Por favor vuelva a intentarlo'
     }]
 
+    const isComplete = Boolean(message.title.trim() && message.message.trim());
+
     return (
-        <div>
-            <h7>Nuevo Reclamo</h7>
-            <hr />
+        <Box>
+            <Typography variant="overline" color="text.secondary">Nueva solicitud</Typography>
+            <Typography variant="h6" color="primary.dark" sx={{ mb: 1.5 }}>Nuevo reclamo</Typography>
             <ErrorHandler errors={errorDescriptions} />
             <Card>
-                <Card.Body>
-                    <Card.Text>
-                        <Form>
-                            <Form.Group controlId="exampleForm.ControlTextarea1">
-                                <Form.Control
-                                    data_testid='title'
-                                    as="input"
-                                    placeholder="Titulo"
-                                    onChange={event => handleChange({ 'title': event.target.value })}
-                                    value={message.title} />
-                            </Form.Group>
-                            <Form.Group controlId="exampleForm.ControlTextarea1">
-                                <Form.Control
-                                    data_testid='description'
-                                    as="textarea"
-                                    rows={3}
-                                    placeholder="Describa su problema"
-                                    onChange={event => handleChange({ 'message': event.target.value })}
-                                    value={message.message} />
-                            </Form.Group>
+                <Card.Body sx={{ p: 2 }}>
+                        <Stack spacing={1.5}>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label="Título"
+                                data-testid='title'
+                                onChange={event => handleChange({ title: event.target.value })}
+                                value={message.title}
+                            />
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={4}
+                                size="small"
+                                label="Describe el problema"
+                                data-testid='description'
+                                onChange={event => handleChange({ message: event.target.value })}
+                                value={message.message}
+                            />
                             <BasicAddItemButton
-                                style={{ fontSize: 'x-small' }}
-                                description={'Crear'}
+                                description={'Crear reclamo'}
+                                disabled={!isComplete}
                                 onClick={() => save()} />
-                            <FileUploaderButton style={{ fontSize: 'x-small' }} handleFile={onFileChange} />
+                            <FileUploaderButton handleFile={onFileChange} />
                             <FileSelectedItem selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
-                        </Form>
-                    </Card.Text>
+                        </Stack>
                 </Card.Body>
             </Card>
-        </div >
+        </Box>
     )
 }
 
