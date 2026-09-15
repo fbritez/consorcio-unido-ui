@@ -14,7 +14,9 @@ import {
     Typography,
     Stack,
     CircularProgress,
-    Paper
+    Paper,
+    ToggleButton,
+    ToggleButtonGroup
 } from '@mui/material';
 import { Add as AddIcon, Description as DescriptionIcon } from '@mui/icons-material';
 import ExpensesReceiptService from '../../../services/expense-receipt-service/expense-receipt-service';
@@ -28,9 +30,10 @@ const ExpensesReceiptList = (props) => {
     const { user } = useContext(UserContext);
     const [expenses, setExpenses] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { expensesReceipt, setExpensesReceipt } = useContext(ExpensesReceiptContext);
+    const { expensesReceipt, setExpensesReceipt, refreshTrigger } = useContext(ExpensesReceiptContext);
     const { consortium } = useContext(ConsortiumContext);
     const [isAdministrator, setIsAdministrator] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('todos');
 
     useEffect(() => {
         const loadExpenses = async () => {
@@ -48,7 +51,7 @@ const ExpensesReceiptList = (props) => {
             }
         };
         loadExpenses();
-    }, [consortium, user]);
+    }, [consortium, user, refreshTrigger]);
 
     const getStatusChip = (item) => {
         if (item.isOpen?.()) {
@@ -82,6 +85,14 @@ const ExpensesReceiptList = (props) => {
 
     const handleNewExpense = () => {
         setExpensesReceipt(undefined);
+    };
+
+    const getFilteredExpenses = () => {
+        if (!expenses) return [];
+        if (statusFilter === 'todos') return expenses;
+        if (statusFilter === 'abiertos') return expenses.filter(e => e.isOpen?.());
+        if (statusFilter === 'cerrados') return expenses.filter(e => !e.isOpen?.());
+        return expenses;
     };
 
     return (
@@ -129,6 +140,46 @@ const ExpensesReceiptList = (props) => {
                 </Button>
             )}
 
+            {/* Status Filter */}
+            {expenses && expenses.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                    <ToggleButtonGroup
+                        value={statusFilter}
+                        exclusive
+                        onChange={(e, value) => value && setStatusFilter(value)}
+                        size="small"
+                        fullWidth
+                        sx={{
+                            '& .MuiToggleButton-root': {
+                                textTransform: 'none',
+                                fontWeight: 500,
+                                fontSize: '0.85rem',
+                                color: 'text.secondary',
+                                borderColor: 'divider',
+                                '&.Mui-selected': {
+                                    backgroundColor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    borderColor: 'primary.main',
+                                    '&:hover': {
+                                        backgroundColor: 'primary.dark'
+                                    }
+                                }
+                            }
+                        }}
+                    >
+                        <ToggleButton value="todos" sx={{ borderRadius: '4px 0 0 4px' }}>
+                            Todos
+                        </ToggleButton>
+                        <ToggleButton value="abiertos">
+                            Abiertos
+                        </ToggleButton>
+                        <ToggleButton value="cerrados" sx={{ borderRadius: '0 4px 4px 0' }}>
+                            Cerrados
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
+            )}
+
             {/* Expenses List */}
             <Paper
                 sx={{
@@ -151,7 +202,7 @@ const ExpensesReceiptList = (props) => {
                     </Box>
                 ) : expenses && expenses.length > 0 ? (
                     <List sx={{ p: 0 }}>
-                        {expenses.map((item, index) => (
+                        {getFilteredExpenses().map((item, index, array) => (
                             <React.Fragment key={`${item.year}-${item.month}`}>
                                 <ListItem
                                     disablePadding
@@ -213,7 +264,7 @@ const ExpensesReceiptList = (props) => {
                                         />
                                     </ListItemButton>
                                 </ListItem>
-                                {index < expenses.length - 1 && <Divider sx={{ my: 0 }} />}
+                                {index < array.length - 1 && <Divider sx={{ my: 0 }} />}
                             </React.Fragment>
                         ))}
                     </List>

@@ -143,7 +143,7 @@ const ExpensesReceiptDetailHeader = () => {
 };
 
 const ExpensesReceiptDetailView = (props) => {
-    const { expensesReceipt, setExpensesReceipt } = useContext(ExpensesReceiptContext);
+    const { expensesReceipt, setExpensesReceipt, triggerRefresh } = useContext(ExpensesReceiptContext);
     const { consortium } = useContext(ConsortiumContext);
     const [showExpensesCRUD, setShowExpensesCRUD] = useState(false);
     const [tabValue, setTabValue] = useState(0);
@@ -181,6 +181,7 @@ const ExpensesReceiptDetailView = (props) => {
         const { expense, file } = action(item);
         await service.save(expense, file);
         setExpensesReceipt(expense);
+        triggerRefresh();
     };
 
     const closeExpenses = () => {
@@ -188,6 +189,7 @@ const ExpensesReceiptDetailView = (props) => {
         service.generateReceipt(expensesReceipt).then(
             () => {
                 setExpensesReceipt(undefined);
+                triggerRefresh();
             },
             () => { }
         );

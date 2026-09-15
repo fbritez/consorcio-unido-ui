@@ -3,10 +3,18 @@ const ExpensesReceiptContext = createContext();
 
 const ExpensesReceiptContextProvider = (props) => {
     const [expensesReceipt, setExpensesReceipt] = useState();
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    const triggerRefresh = () => {
+        setRefreshTrigger(prev => prev + 1);
+    };
+
     return (
-        <ExpensesReceiptContext.Provider value={{ 
+        <ExpensesReceiptContext.Provider value={{
             expensesReceipt: expensesReceipt,
-            setExpensesReceipt : setExpensesReceipt
+            setExpensesReceipt : setExpensesReceipt,
+            refreshTrigger: refreshTrigger,
+            triggerRefresh: triggerRefresh
         }}>
         	{props.children}
         </ExpensesReceiptContext.Provider>

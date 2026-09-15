@@ -224,20 +224,24 @@ const ExpenseDetails = (props) => {
             <Card
                 sx={{
                     borderRadius: 2,
-                    backgroundColor: 'success.light',
-                    border: '2px solid',
-                    borderColor: 'success.main',
-                    boxShadow: '0 4px 12px rgba(76, 175, 80, 0.15)'
+                    backgroundColor: 'transparent',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    boxShadow: 'none',
+                    mt: 2
                 }}
             >
-                <CardContent sx={{ py: 2 }}>
-                    <Grid container alignItems="center">
+                <CardContent sx={{ py: 2, px: 2 }}>
+                    <Grid container alignItems="center" spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <Typography
-                                variant="body1"
+                                variant="subtitle2"
                                 sx={{
-                                    fontWeight: 700,
-                                    color: 'text.primary'
+                                    fontWeight: 600,
+                                    color: 'text.secondary',
+                                    textTransform: 'uppercase',
+                                    fontSize: '0.85rem',
+                                    letterSpacing: '0.5px'
                                 }}
                             >
                                 Total a Pagar
@@ -246,9 +250,9 @@ const ExpenseDetails = (props) => {
                         <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
                             <CurrencyDisplay
                                 amount={expensesReceipt.getTotalAmount()}
-                                variant="h6"
-                                color="success.main"
-                                sx={{ fontSize: { xs: '1.3rem', sm: '1.6rem' } }}
+                                variant="body1"
+                                color="text.primary"
+                                sx={{ fontWeight: 700, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
                             />
                         </Grid>
                     </Grid>
