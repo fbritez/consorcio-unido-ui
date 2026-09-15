@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Stack, TextField, Typography } from '@mui/material';
 import { Modal } from '../../common/mui-components';
 import { BasicAddItemButton } from '../../common/buttons';
+import { EmailField, isValidEmail } from '../../common/email-field';
 
 const MemberDetailsView = props => {
 
@@ -19,6 +21,10 @@ const MemberDetailsView = props => {
     }
 
     const raiseMemberUpdated = () => {
+        if (updatedMember.secondary_email && !isValidEmail(updatedMember.secondary_email)) {
+            return;
+        }
+
         props.handleMemberChange(updatedMember)
         setUpdatedMembers(undefined)
     }
@@ -32,35 +38,34 @@ const MemberDetailsView = props => {
                         <Modal.Title data-testid='title'>{`${updatedMember.member_name} - ${updatedMember.user_email}`}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <div>
-                            <div style={{marginBottom: '3%'}}>
-                            <text style={{ fontSize: 'smaller' }}> Este email tambien tendra acceso al sistema.</text>
-                            <input
+                        <Stack spacing={2}>
+                            <Typography variant="body2" color="text.secondary">
+                                Este correo también tendrá acceso al sistema.
+                            </Typography>
+                            <EmailField
+                                fullWidth
+                                size="small"
+                                label="Correo secundario"
                                 data-testid='secondary_email'
-                                style={{ fontSize: 'smaller' }}
-                                type="text"
-                                id="formGroupExampleInput"
-                                value={updatedMember.secondary_email}
-                                placeholder={'Mail Secundario'}
+                                allowEmpty
+                                value={updatedMember.secondary_email || ''}
                                 onChange={event => handleChange({ 'secondary_email': event.target.value })}
                             />
-                            </div>
-                            <textarea
+                            <TextField
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                size="small"
+                                label="Notas"
                                 data-testid='notes'
-                                style={{ fontSize: 'smaller' }}
-                                type="text"
-                                id="formGroupExampleInput"
-                                value={updatedMember.notes}
-                                placeholder={'Notas'}
+                                value={updatedMember.notes || ''}
                                 onChange={event => handleChange({ 'notes': event.target.value })}
                             />
-                            <hr/>
                             <BasicAddItemButton 
-                                style={{ fontSize: 'xx-small' }}
-                                description={'Guardar'}
+                                description={'Guardar cambios'}
                                 onClick={raiseMemberUpdated}
                             />
-                        </div>
+                        </Stack>
                     </Modal.Body>
                 </Modal>
 

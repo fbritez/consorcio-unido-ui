@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
+import { Box, Grid, Typography, Divider } from '@mui/material';
 import ConsortiumsListView from '../../consortium/consortiums-list-view/consortiums-list-view';
 import { ConsortiumContext } from '../../consortium/consortium-provider/consortium-provider';
 import ExpensesReceiptView from '../view/expenses-receipt-view';
 import ExpensesReceiptList from '../expenses-receipt-list/expenses-receipt-list';
-import { Row, Container, Col } from '../../common/mui-components';
 import { UserContext } from '../../user-provider/user-provider';
 import authenticationHandler from '../../login/authentication-handler';
 import { ExpensesReceiptContextProvider } from '../expenses-receipt-provider/expenses-receipt-provider';
@@ -15,35 +15,61 @@ const ExpensesReceiptGeneralView = props => {
     const { user } = useContext(UserContext);
 
     return (
-        <div className='expenses-receipt'>
-            <Container>
-                <div style={{ marginLeft: '5%', marginRight: '5%'}}>
-                    <Row style={{ marginTop: '1%' }} className="justify-content-md-center">
-                        <Col sm={2}>{
-                            <div>
-                                <ExpensesReceiptList add={true}/>
-                            </div>
-                        }
-                        </Col>
-                        <Col sm={8}>{
-                            consortium ?
-                                <div className='scrollbar-dinamically'>
-                                    <ExpensesReceiptView/>
-                                </div>
-                                :
-                                <div style={{ textAlign: 'center' }}>
-                                    <h5>Expensas</h5>
-                                    <hr/>
-                                    <lable > Por favor seleccione un consorcio</lable>
-                                </div>
-                        }
-                        </Col>
-                        <Col sm={2}>
-                        </Col>
-                    </Row>
-                </div>
-            </Container>
-        </div >
+        <Box sx={{
+            p: { xs: 1, sm: 2, md: 3 },
+            mx: { xs: 0, sm: 1, md: 2, lg: 4 }
+        }}>
+            <Grid container spacing={2} sx={{ height: '100%' }}>
+                <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={2}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: { xs: 'auto', md: '70vh' }
+                    }}
+                >
+                    <ExpensesReceiptList add={true} />
+                </Grid>
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={10}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minHeight: { xs: 'auto', md: '70vh' }
+                    }}
+                >
+                    {consortium ? (
+                        <Box sx={{ overflowY: 'auto', height: '100%' }}>
+                            <ExpensesReceiptView />
+                        </Box>
+                    ) : (
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: 300,
+                            textAlign: 'center'
+                        }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                                Expensas
+                            </Typography>
+                            <Divider sx={{ mb: 2, width: '100%' }} />
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Por favor seleccione un consorcio
+                            </Typography>
+                        </Box>
+                    )}
+                </Grid>
+            </Grid>
+        </Box>
     )
 }
 

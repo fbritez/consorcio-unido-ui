@@ -8,6 +8,7 @@ import 'ag-grid-community/dist/styles/ag-theme-material.css';
 import settingService from '../../../services/setting-service/setting-service';
 import MemberDetailsView from './member-details-view';
 import { BiAlignJustify } from "react-icons/bi";
+import { isValidEmail } from '../../common/email-field';
 
 const ConsortiumMembersTable = (props) => {
 
@@ -33,6 +34,15 @@ const ConsortiumMembersTable = (props) => {
         const sortedMembers = sortMembers(members)
         setMembers(sortedMembers);
         props.setMembers(sortedMembers);
+    }
+
+    const memberEmailChange = event => {
+        if (!isValidEmail(event.newValue || '')) {
+            event.node.setDataValue('user_email', event.oldValue || '');
+            return;
+        }
+
+        memberChage();
     }
 
     const raiseMembersChanges = async (updatedMembers) => {
@@ -118,7 +128,7 @@ const ConsortiumMembersTable = (props) => {
                         field="user_email"
                         headerName="Correo de contacto"
                         editable={true}
-                        onCellValueChanged={memberChage}
+                        onCellValueChanged={memberEmailChange}
                     >
                     </AgGridColumn>
                     <AgGridColumn

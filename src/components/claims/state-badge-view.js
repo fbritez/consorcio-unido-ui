@@ -3,8 +3,8 @@ import { Badge } from '../common/mui-components';
 
 const StateBadge = props => {
 
-    var description;
-    var variant;
+    let description = 'Sin estado';
+    let variant = 'default';
 
     switch (props.state) {
         case 'Open':
@@ -22,6 +22,8 @@ const StateBadge = props => {
         case 'Close':
             description = 'Cerrada';
             variant = 'danger';
+            break;
+        default:
             break;
     }
 

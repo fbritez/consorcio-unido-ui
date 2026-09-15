@@ -27,10 +27,10 @@ const ConsortiumsListView = (props) => {
                 </Typography>
             </Stack>
             <Grid container spacing={2.5}>
-                {consortiums?.map(consortium => <Grid item xs={12} sm={6} md={4} key={consortium.id || consortium.name}>
+                {consortiums?.map(consortium => <Grid item xs={12} sm={props.dense ? 12 : 6} md={props.dense ? 12 : 4} key={consortium.id || consortium.name}>
                     <ConsortiumCardView consortium={consortium} setConsortium={props.setConsortium} />
                 </Grid>)}
-                {props.add && <Grid item xs={12} sm={6} md={4}><AddConsortiumCardView /></Grid>}
+                {props.add && <Grid item xs={12} sm={props.dense ? 12 : 6} md={props.dense ? 12 : 4}><AddConsortiumCardView /></Grid>}
             </Grid>
         </Box>
     )
