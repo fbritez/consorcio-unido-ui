@@ -7,6 +7,7 @@ import { DownloadButton, FileUploaderButton } from '../common/buttons';
 import { downloadTicket } from '../utils/download-files';
 import { image } from 'react-dom-factories';
 import imageService from '../../services/image-service/image-service';
+import { CurrencyDisplay } from '../common/currency-display';
 
 const expensesReceiptService = new ExpensesReceiptService();
 
@@ -75,7 +76,9 @@ const PaymentMemberView = props => {
                     {getStatus(props.memberReceipt)}
                 </Col>
                 <Col sm={2}>
-                    <div style={{ float: 'right', fontSize: 'smaller' }}>{`$ ${props.memberReceipt?.getTotalAmount()}`}</div>
+                    <div style={{ float: 'right', fontSize: 'smaller' }}>
+                        <CurrencyDisplay amount={props.memberReceipt?.getTotalAmount?.()} variant="body2" />
+                    </div>
                 </Col>
                 <Col sm={2}>
                     <div style={{ float: 'right', fontSize: 'smaller' }}>
@@ -91,7 +94,7 @@ const PaymentMemberView = props => {
                 </Col>
                 <Col sm={1}>
                     <div style={{ float: 'right', fontSize: 'smaller' }}>
-                        {`$${props.memberReceipt?.difference()}`}
+                        <CurrencyDisplay amount={props.memberReceipt?.difference?.()} variant="body2" />
                     </div>
                 </Col>
                 <Col sm={2}>
@@ -170,14 +173,14 @@ const PaymentStatusView = () => {
                 <Col sm={2}></Col>
                 <Col sm={2}>
                     <div style={{ float: 'right', fontSize: 'smaller', fontWeight: 'bold' }}>
-                        {`$ ${expensesReceipt.getTotalAmount()}`}
+                        <CurrencyDisplay amount={expensesReceipt.getTotalAmount?.()} variant="body2" fontWeight={700} />
                     </div>
                 </Col>
                 <Col sm={2}>
                 </Col>
                 <Col sm={1}>
                     <div style={{ float: 'right', fontSize: 'smaller', fontWeight: 'bold' }}>
-                        {`$${expensesReceipt.totalDifference()}`}
+                        <CurrencyDisplay amount={expensesReceipt.totalDifference?.()} variant="body2" fontWeight={700} />
                     </div>
                 </Col>
                 <Col sm={4}>

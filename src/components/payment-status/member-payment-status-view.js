@@ -3,6 +3,7 @@ import { Col, Row, Badge } from '../common/mui-components';
 import { ExpensesReceiptContext } from '../expenses-receipt/expenses-receipt-provider/expenses-receipt-provider';
 import { getStatus } from './utils';
 import { UserContext } from '../user-provider/user-provider';
+import { CurrencyDisplay } from '../common/currency-display';
 
 const PaymentMemberView = props => {
 
@@ -23,11 +24,13 @@ const PaymentMemberView = props => {
                     {getStatus(props.memberReceipt)}
                 </Col>
                 <Col sm={3}>
-                    <div style={{float: 'right',fontSize: 'small'}}>{`$ ${props.memberReceipt?.getTotalAmount()}`}</div>
+                    <div style={{float: 'right',fontSize: 'small'}}>
+                        <CurrencyDisplay amount={props.memberReceipt?.getTotalAmount?.()} variant="body2" />
+                    </div>
                 </Col>
                 <Col sm={3}>
                     <div style={{float: 'right',fontSize: 'small'}}>
-                        {`$${props.memberReceipt?.difference()}`}
+                        <CurrencyDisplay amount={props.memberReceipt?.difference?.()} variant="body2" />
                     </div>
                 </Col>
             </Row>
@@ -62,12 +65,12 @@ const MemberPaymentStatusView = () => {
                 <Col sm={3}></Col>
                 <Col sm={3}>
                     <div style={{float: 'right', fontWeight: 'bold'}}>
-                        {`$ ${expensesReceipt.getTotalAmount()}`}
+                        <CurrencyDisplay amount={expensesReceipt.getTotalAmount?.()} variant="body2" fontWeight={700} />
                     </div>
                 </Col>
                 <Col sm={3}>
                     <div style={{float: 'right', fontWeight: 'bold'}}>
-                    {`$${expensesReceipt.totalDifference()}`}
+                        <CurrencyDisplay amount={expensesReceipt.totalDifference?.()} variant="body2" fontWeight={700} />
                     </div>
                 </Col>
             </Row>

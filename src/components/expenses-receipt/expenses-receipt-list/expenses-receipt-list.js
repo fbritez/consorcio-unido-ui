@@ -85,7 +85,12 @@ const ExpensesReceiptList = (props) => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            width: '100%'
+        }}>
             {/* Header Card */}
             <Card
                 sx={{
@@ -117,7 +122,7 @@ const ExpensesReceiptList = (props) => {
                         py: 1.5,
                         fontWeight: 600,
                         textTransform: 'none',
-                        fontSize: '0.95rem'
+                        fontSize: { xs: '0.85rem', sm: '0.95rem' }
                     }}
                 >
                     Nueva Liquidación
@@ -164,27 +169,27 @@ const ExpensesReceiptList = (props) => {
                                             expensesReceipt?.month === item.month
                                         }
                                         sx={{
-                                            py: 2,
-                                            px: 2,
+                                            py: { xs: 1.5, sm: 2 },
+                                            px: { xs: 1.5, sm: 2 },
                                             '&.Mui-selected': {
                                                 backgroundColor: 'rgba(44, 64, 104, 0.08)',
                                                 borderLeft: '4px solid',
                                                 borderColor: 'primary.main',
-                                                pl: 1.5
+                                                pl: { xs: 1, sm: 1.5 }
                                             }
                                         }}
                                     >
                                         <DescriptionIcon
                                             sx={{
-                                                mr: 2,
+                                                mr: { xs: 1, sm: 2 },
                                                 color: 'primary.main',
-                                                fontSize: '1.5rem'
+                                                fontSize: { xs: '1.2rem', sm: '1.5rem' }
                                             }}
                                         />
                                         <ListItemText
                                             primary={
                                                 <Typography
-                                                    variant="body1"
+                                                    variant="body2"
                                                     sx={{ fontWeight: 600, color: 'text.primary' }}
                                                 >
                                                     {item.month} {item.year}
@@ -193,13 +198,13 @@ const ExpensesReceiptList = (props) => {
                                             secondary={
                                                 <Stack
                                                     direction="row"
-                                                    spacing={1}
-                                                    sx={{ mt: 0.5 }}
+                                                    spacing={0.5}
+                                                    sx={{ mt: 0.5, flexWrap: 'wrap', gap: 0.5 }}
                                                 >
                                                     {getStatusChip(item)}
                                                     <Typography
                                                         variant="caption"
-                                                        sx={{ color: 'text.secondary', alignSelf: 'center' }}
+                                                        sx={{ color: 'text.secondary', alignSelf: 'center', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
                                                     >
                                                         {item.expense_items?.length || 0} gastos
                                                     </Typography>
