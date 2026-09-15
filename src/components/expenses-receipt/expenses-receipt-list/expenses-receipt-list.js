@@ -16,9 +16,12 @@ import {
     CircularProgress,
     Paper,
     ToggleButton,
-    ToggleButtonGroup
+    ToggleButtonGroup,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
-import { Add as AddIcon, Description as DescriptionIcon } from '@mui/icons-material';
+import { Add as AddIcon, Description as DescriptionIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import ExpensesReceiptService from '../../../services/expense-receipt-service/expense-receipt-service';
 import { ConsortiumContext } from '../../consortium/consortium-provider/consortium-provider';
 import { UserContext } from '../../user-provider/user-provider';
@@ -95,6 +98,26 @@ const ExpensesReceiptList = (props) => {
         return expenses;
     };
 
+    const getExpensesByYear = () => {
+        const filtered = getFilteredExpenses();
+        const grouped = {};
+
+        filtered.forEach(expense => {
+            const year = expense.year;
+            if (!grouped[year]) {
+                grouped[year] = [];
+            }
+            grouped[year].push(expense);
+        });
+
+        return Object.keys(grouped)
+            .sort((a, b) => b - a)
+            .map(year => ({
+                year,
+                expenses: grouped[year]
+            }));
+    };
+
     return (
         <Box sx={{
             display: 'flex',
@@ -130,10 +153,10 @@ const ExpensesReceiptList = (props) => {
                     sx={{
                         mb: 2,
                         borderRadius: 2,
-                        py: 1.5,
+                        py: 1,
                         fontWeight: 600,
                         textTransform: 'none',
-                        fontSize: { xs: '0.85rem', sm: '0.95rem' }
+                        fontSize: { xs: '0.8rem', sm: '0.85rem' }
                     }}
                 >
                     Nueva Liquidación
@@ -201,73 +224,122 @@ const ExpensesReceiptList = (props) => {
                         <CircularProgress size={40} />
                     </Box>
                 ) : expenses && expenses.length > 0 ? (
-                    <List sx={{ p: 0 }}>
-                        {getFilteredExpenses().map((item, index, array) => (
-                            <React.Fragment key={`${item.year}-${item.month}`}>
-                                <ListItem
-                                    disablePadding
+                    <Box sx={{ p: 0 }}>
+                        {getExpensesByYear().map((yearGroup) => (
+                            <Accordion
+                                key={yearGroup.year}
+                                defaultExpanded={parseInt(yearGroup.year) === new Date().getFullYear()}
+                                sx={{
+                                    mb: 0,
+                                    '&:before': { display: 'none' },
+                                    boxShadow: 'none',
+                                    borderBottom: '1px solid',
+                                    borderColor: 'divider',
+                                    '&.Mui-expanded': {
+                                        m: 0
+                                    }
+                                }}
+                            >
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
                                     sx={{
-                                        '&:hover': {
-                                            backgroundColor: 'action.hover'
-                                        },
-                                        transition: 'background-color 0.2s'
+                                        backgroundColor: 'rgba(44, 64, 104, 0.04)',
+                                        py: 1,
+                                        px: 2,
+                                        fontWeight: 600,
+                                        '&.Mui-expanded': {
+                                            minHeight: 'auto'
+                                        }
                                     }}
                                 >
-                                    <ListItemButton
-                                        onClick={() => handleSelectExpense(item)}
-                                        selected={
-                                            expensesReceipt?.year === item.year &&
-                                            expensesReceipt?.month === item.month
-                                        }
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                                        {yearGroup.year}
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
                                         sx={{
-                                            py: { xs: 1.5, sm: 2 },
-                                            px: { xs: 1.5, sm: 2 },
-                                            '&.Mui-selected': {
-                                                backgroundColor: 'rgba(44, 64, 104, 0.08)',
-                                                borderLeft: '4px solid',
-                                                borderColor: 'primary.main',
-                                                pl: { xs: 1, sm: 1.5 }
-                                            }
+                                            color: 'text.secondary',
+                                            ml: 'auto',
+                                            mr: 2,
+                                            fontSize: '0.8rem'
                                         }}
                                     >
-                                        <DescriptionIcon
-                                            sx={{
-                                                mr: { xs: 1, sm: 2 },
-                                                color: 'primary.main',
-                                                fontSize: { xs: '1.2rem', sm: '1.5rem' }
-                                            }}
-                                        />
-                                        <ListItemText
-                                            primary={
-                                                <Typography
-                                                    variant="body2"
-                                                    sx={{ fontWeight: 600, color: 'text.primary' }}
+                                        {yearGroup.expenses.length} {yearGroup.expenses.length === 1 ? 'liquidación' : 'liquidaciones'}
+                                    </Typography>
+                                </AccordionSummary>
+
+                                <AccordionDetails sx={{ p: 0 }}>
+                                    <List sx={{ p: 0 }}>
+                                        {yearGroup.expenses.map((item, index) => (
+                                            <React.Fragment key={`${item.year}-${item.month}`}>
+                                                <ListItem
+                                                    disablePadding
+                                                    sx={{
+                                                        '&:hover': {
+                                                            backgroundColor: 'action.hover'
+                                                        },
+                                                        transition: 'background-color 0.2s'
+                                                    }}
                                                 >
-                                                    {item.month} {item.year}
-                                                </Typography>
-                                            }
-                                            secondary={
-                                                <Stack
-                                                    direction="row"
-                                                    spacing={0.5}
-                                                    sx={{ mt: 0.5, flexWrap: 'wrap', gap: 0.5 }}
-                                                >
-                                                    {getStatusChip(item)}
-                                                    <Typography
-                                                        variant="caption"
-                                                        sx={{ color: 'text.secondary', alignSelf: 'center', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+                                                    <ListItemButton
+                                                        onClick={() => handleSelectExpense(item)}
+                                                        selected={
+                                                            expensesReceipt?.year === item.year &&
+                                                            expensesReceipt?.month === item.month
+                                                        }
+                                                        sx={{
+                                                            py: { xs: 1.5, sm: 2 },
+                                                            px: { xs: 1.5, sm: 2 },
+                                                            '&.Mui-selected': {
+                                                                backgroundColor: 'rgba(44, 64, 104, 0.08)',
+                                                                borderLeft: '4px solid',
+                                                                borderColor: 'primary.main',
+                                                                pl: { xs: 1, sm: 1.5 }
+                                                            }
+                                                        }}
                                                     >
-                                                        {item.expense_items?.length || 0} gastos
-                                                    </Typography>
-                                                </Stack>
-                                            }
-                                        />
-                                    </ListItemButton>
-                                </ListItem>
-                                {index < array.length - 1 && <Divider sx={{ my: 0 }} />}
-                            </React.Fragment>
+                                                        <DescriptionIcon
+                                                            sx={{
+                                                                mr: { xs: 1, sm: 2 },
+                                                                color: 'primary.main',
+                                                                fontSize: { xs: '1.2rem', sm: '1.5rem' }
+                                                            }}
+                                                        />
+                                                        <ListItemText
+                                                            primary={
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    sx={{ fontWeight: 600, color: 'text.primary' }}
+                                                                >
+                                                                    {item.month}
+                                                                </Typography>
+                                                            }
+                                                            secondary={
+                                                                <Stack
+                                                                    direction="row"
+                                                                    spacing={0.5}
+                                                                    sx={{ mt: 0.5, flexWrap: 'wrap', gap: 0.5 }}
+                                                                >
+                                                                    {getStatusChip(item)}
+                                                                    <Typography
+                                                                        variant="caption"
+                                                                        sx={{ color: 'text.secondary', alignSelf: 'center', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+                                                                    >
+                                                                        {item.expense_items?.length || 0} gastos
+                                                                    </Typography>
+                                                                </Stack>
+                                                            }
+                                                        />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                                {index < yearGroup.expenses.length - 1 && <Divider sx={{ my: 0 }} />}
+                                            </React.Fragment>
+                                        ))}
+                                    </List>
+                                </AccordionDetails>
+                            </Accordion>
                         ))}
-                    </List>
+                    </Box>
                 ) : (
                     <Box
                         sx={{
