@@ -1,5 +1,27 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Badge, ListGroup } from '../../common/mui-components';
+import {
+    Box,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Card,
+    CardHeader,
+    CardContent,
+    Chip,
+    Button,
+    Divider,
+    Typography,
+    Stack,
+    CircularProgress,
+    Paper,
+    ToggleButton,
+    ToggleButtonGroup,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
+} from '@mui/material';
+import { Add as AddIcon, Description as DescriptionIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import ExpensesReceiptService from '../../../services/expense-receipt-service/expense-receipt-service';
 import { ConsortiumContext } from '../../consortium/consortium-provider/consortium-provider';
 import { UserContext } from '../../user-provider/user-provider';
@@ -7,69 +29,345 @@ import { ExpensesReceiptContext } from '../expenses-receipt-provider/expenses-re
 
 const service = new ExpensesReceiptService();
 
-const ExpensesReceiptList = props => {
-
+const ExpensesReceiptList = (props) => {
     const { user } = useContext(UserContext);
-    const [expenses, setExpenses] = useState();
-    const { expensesReceipt, setExpensesReceipt } = useContext(ExpensesReceiptContext);
+    const [expenses, setExpenses] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const { expensesReceipt, setExpensesReceipt, refreshTrigger } = useContext(ExpensesReceiptContext);
     const { consortium } = useContext(ConsortiumContext);
     const [isAdministrator, setIsAdministrator] = useState(false);
-    const [refresh, setRefresh] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('todos');
+    const [expandedYear, setExpandedYear] = useState(null);
 
-    useEffect(async () => {
-        if (consortium) {
-            const exp = await service.getExpensesAccordingUser(consortium, user);
-            setExpenses(exp);
-            setIsAdministrator(consortium.isAdministrator(user));
-            setRefresh(!refresh);
-        }
-    }, [consortium, expensesReceipt]);
-
-    const getStatusDescription = item => item.isOpen()? <Badge variant="success">Abierta</Badge> : <div/>
-    
-    const runAction = item => {
-        setExpensesReceipt(item)
-        if(props.action){
-            props.action(item)
-        }
-    }
-    
-    return (
-        <div className='scrollbar-dinamically'>
-              <div>
-                Mis Expensas
-                <hr/>
-            </div>
-            {isAdministrator && props.add ?
-                <ListGroup>
-                    <ListGroup.Item
-                        action
-                        onClick={() => setExpensesReceipt(undefined)}>
-                        Nueva Expensa
-                    </ListGroup.Item>
-                </ListGroup>
-                : <div />
+    useEffect(() => {
+        const loadExpenses = async () => {
+            if (consortium) {
+                setLoading(true);
+                try {
+                    const exp = await service.getExpensesAccordingUser(consortium, user);
+                    setExpenses(exp);
+                    setIsAdministrator(consortium.isAdministrator(user));
+                } catch (error) {
+                    console.error('Error loading expenses:', error);
+                    setExpenses([]);
+                }
+                setLoading(false);
             }
-            <div style={{ marginTop: '3%', fontSize: 'small' }}>
-                <ListGroup>
-                    {expenses?.map(item => {
-                        return (
-                            <ListGroup.Item
-                                action
-                                onClick={() => runAction(item)}
-                                as='div'>
-                                    <div>
-                                     {`${item.year} - ${item.month} `}
-                                     {getStatusDescription(item)}
-                                    </div> 
-                                    
-                            </ListGroup.Item>
-                        )
-                    })}
-                </ListGroup>
-            </div>
-        </div>
-    )
-}
+        };
+        loadExpenses();
+    }, [consortium, user, refreshTrigger]);
 
-export default ExpensesReceiptList
+    useEffect(() => {
+        if (expensesReceipt?.year) {
+            setExpandedYear(expensesReceipt.year.toString());
+        } else {
+            setExpandedYear(new Date().getFullYear().toString());
+        }
+    }, [expensesReceipt]);
+
+    const getStatusChip = (item) => {
+        if (item.isOpen?.()) {
+            return (
+                <Chip
+                    label="Abierta"
+                    color="warning"
+                    size="small"
+                    variant="filled"
+                    sx={{ fontWeight: 600 }}
+                />
+            );
+        }
+        return (
+            <Chip
+                label="Cerrada"
+                color="success"
+                size="small"
+                variant="filled"
+                sx={{ fontWeight: 600 }}
+            />
+        );
+    };
+
+    const handleSelectExpense = (item) => {
+        setExpensesReceipt(item);
+        if (props.action) {
+            props.action(item);
+        }
+    };
+
+    const handleNewExpense = () => {
+        setExpensesReceipt(undefined);
+    };
+
+    const getFilteredExpenses = () => {
+        if (!expenses) return [];
+        if (statusFilter === 'todos') return expenses;
+        if (statusFilter === 'abiertos') return expenses.filter(e => e.isOpen?.());
+        if (statusFilter === 'cerrados') return expenses.filter(e => !e.isOpen?.());
+        return expenses;
+    };
+
+    const getExpensesByYear = () => {
+        const filtered = getFilteredExpenses();
+        const grouped = {};
+
+        filtered.forEach(expense => {
+            const year = expense.year;
+            if (!grouped[year]) {
+                grouped[year] = [];
+            }
+            grouped[year].push(expense);
+        });
+
+        return Object.keys(grouped)
+            .sort((a, b) => b - a)
+            .map(year => ({
+                year,
+                expenses: grouped[year]
+            }));
+    };
+
+    return (
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            width: '100%'
+        }}>
+            {/* Header Card */}
+            <Card
+                sx={{
+                    mb: 2,
+                    borderRadius: 2,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                    backgroundColor: 'background.paper'
+                }}
+            >
+                <CardHeader
+                    title="Liquidaciones"
+                    titleTypographyProps={{ variant: 'h6', sx: { fontWeight: 700 } }}
+                    subheader="Gestiona tus expensas"
+                    subheaderTypographyProps={{ variant: 'body2', sx: { color: 'text.secondary' } }}
+                    sx={{ pb: 1 }}
+                />
+            </Card>
+
+            {/* New Expense Button - Admin Only */}
+            {isAdministrator && props.add && (
+                <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={handleNewExpense}
+                    fullWidth
+                    sx={{
+                        mb: 2,
+                        borderRadius: 2,
+                        py: 1,
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        fontSize: { xs: '0.8rem', sm: '0.85rem' }
+                    }}
+                >
+                    Nueva Liquidación
+                </Button>
+            )}
+
+            {/* Status Filter */}
+            {expenses && expenses.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                    <ToggleButtonGroup
+                        value={statusFilter}
+                        exclusive
+                        onChange={(e, value) => value && setStatusFilter(value)}
+                        size="small"
+                        fullWidth
+                        sx={{
+                            '& .MuiToggleButton-root': {
+                                textTransform: 'none',
+                                fontWeight: 500,
+                                fontSize: '0.85rem',
+                                color: 'text.secondary',
+                                borderColor: 'divider',
+                                '&.Mui-selected': {
+                                    backgroundColor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    borderColor: 'primary.main',
+                                    '&:hover': {
+                                        backgroundColor: 'primary.dark'
+                                    }
+                                }
+                            }
+                        }}
+                    >
+                        <ToggleButton value="todos" sx={{ borderRadius: '4px 0 0 4px' }}>
+                            Todos
+                        </ToggleButton>
+                        <ToggleButton value="abiertos">
+                            Abiertos
+                        </ToggleButton>
+                        <ToggleButton value="cerrados" sx={{ borderRadius: '0 4px 4px 0' }}>
+                            Cerrados
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
+            )}
+
+            {/* Expenses List */}
+            <Paper
+                sx={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    borderRadius: 2,
+                    bgcolor: 'background.paper'
+                }}
+            >
+                {loading ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: 200
+                        }}
+                    >
+                        <CircularProgress size={40} />
+                    </Box>
+                ) : expenses && expenses.length > 0 ? (
+                    <Box sx={{ p: 0 }}>
+                        {getExpensesByYear().map((yearGroup) => (
+                            <Accordion
+                                key={yearGroup.year}
+                                expanded={expandedYear === yearGroup.year}
+                                onChange={() => setExpandedYear(expandedYear === yearGroup.year ? null : yearGroup.year)}
+                                sx={{
+                                    mb: 0,
+                                    '&:before': { display: 'none' },
+                                    boxShadow: 'none',
+                                    borderBottom: '1px solid',
+                                    borderColor: 'divider',
+                                    '&.Mui-expanded': {
+                                        m: 0
+                                    }
+                                }}
+                            >
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    sx={{
+                                        backgroundColor: 'rgba(44, 64, 104, 0.04)',
+                                        py: 1,
+                                        px: 2,
+                                        fontWeight: 600,
+                                        '&.Mui-expanded': {
+                                            minHeight: 'auto'
+                                        }
+                                    }}
+                                >
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                                        {yearGroup.year}
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            color: 'text.secondary',
+                                            ml: 'auto',
+                                            mr: 2,
+                                            fontSize: '0.8rem'
+                                        }}
+                                    >
+                                        {yearGroup.expenses.length} {yearGroup.expenses.length === 1 ? 'liquidación' : 'liquidaciones'}
+                                    </Typography>
+                                </AccordionSummary>
+
+                                <AccordionDetails sx={{ p: 0 }}>
+                                    <List sx={{ p: 0 }}>
+                                        {yearGroup.expenses.map((item, index) => (
+                                            <React.Fragment key={`${item.year}-${item.month}`}>
+                                                <ListItem
+                                                    disablePadding
+                                                    sx={{
+                                                        '&:hover': {
+                                                            backgroundColor: 'action.hover'
+                                                        },
+                                                        transition: 'background-color 0.2s'
+                                                    }}
+                                                >
+                                                    <ListItemButton
+                                                        onClick={() => handleSelectExpense(item)}
+                                                        selected={
+                                                            expensesReceipt?.year === item.year &&
+                                                            expensesReceipt?.month === item.month
+                                                        }
+                                                        sx={{
+                                                            py: { xs: 1.5, sm: 2 },
+                                                            px: { xs: 1.5, sm: 2 },
+                                                            '&.Mui-selected': {
+                                                                backgroundColor: 'rgba(44, 64, 104, 0.08)',
+                                                                borderLeft: '4px solid',
+                                                                borderColor: 'primary.main',
+                                                                pl: { xs: 1, sm: 1.5 }
+                                                            }
+                                                        }}
+                                                    >
+                                                        <DescriptionIcon
+                                                            sx={{
+                                                                mr: { xs: 1, sm: 2 },
+                                                                color: 'primary.main',
+                                                                fontSize: { xs: '1.2rem', sm: '1.5rem' }
+                                                            }}
+                                                        />
+                                                        <ListItemText
+                                                            primary={
+                                                                <Typography
+                                                                    variant="body2"
+                                                                    sx={{ fontWeight: 600, color: 'text.primary' }}
+                                                                >
+                                                                    {item.month}
+                                                                </Typography>
+                                                            }
+                                                            secondary={
+                                                                <Stack
+                                                                    direction="row"
+                                                                    spacing={0.5}
+                                                                    sx={{ mt: 0.5, flexWrap: 'wrap', gap: 0.5 }}
+                                                                >
+                                                                    {getStatusChip(item)}
+                                                                    <Typography
+                                                                        variant="caption"
+                                                                        sx={{ color: 'text.secondary', alignSelf: 'center', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+                                                                    >
+                                                                        {item.expense_items?.length || 0} gastos
+                                                                    </Typography>
+                                                                </Stack>
+                                                            }
+                                                        />
+                                                    </ListItemButton>
+                                                </ListItem>
+                                                {index < yearGroup.expenses.length - 1 && <Divider sx={{ my: 0 }} />}
+                                            </React.Fragment>
+                                        ))}
+                                    </List>
+                                </AccordionDetails>
+                            </Accordion>
+                        ))}
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: 200,
+                            color: 'text.secondary'
+                        }}
+                    >
+                        <DescriptionIcon sx={{ fontSize: '2.5rem', mb: 1, opacity: 0.5 }} />
+                        <Typography variant="body2">No hay liquidaciones disponibles</Typography>
+                    </Box>
+                )}
+            </Paper>
+        </Box>
+    );
+};
+
+export default ExpensesReceiptList;

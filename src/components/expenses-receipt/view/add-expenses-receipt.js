@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import {
+    Box,
+    Button,
+    Grid,
+    MenuItem,
+    Select,
+    FormControl,
+    Typography,
+    Stack,
+    Alert,
+    Divider,
+    Card,
+    CardContent
+} from '@mui/material';
 import ExpensesReceiptList from '../expenses-receipt-list/expenses-receipt-list';
 import ExpensesReceiptService from '../../../services/expense-receipt-service/expense-receipt-service';
-import { AddItemButton } from '../../common/buttons';
-import { Dropdown, Col, Row } from '../../common/mui-components';
 import ErrorHandler from '../../common/handlers/error-handler';
+import { ExpensesReceiptContext } from '../expenses-receipt-provider/expenses-receipt-provider';
 
 const service = new ExpensesReceiptService();
 
@@ -29,23 +42,9 @@ const range = (start, end) => {
     return ans;
 }
 
-const LocalDropdown = props => {
-    return (
-        <Dropdown>
-            <Dropdown.Toggle className='my-dropdown' id="dropdown-basic">
-                {props.description}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-                {props.elements.map(item => <Dropdown.Item
-                    onClick={() => props.onClick(item)}>
-                    {item}
-                </Dropdown.Item>)}
-            </Dropdown.Menu>
-        </Dropdown>
-    )
-}
 
 const AddExpensesReceipt = props => {
+    const { triggerRefresh } = useContext(ExpensesReceiptContext);
 
     const defaultMonthDescription = 'Elegir mes';
     const defaultYearDescription = 'Elegir Año';
@@ -69,7 +68,10 @@ const AddExpensesReceipt = props => {
             const items = props.items ? props.items : [];
             await service.createExpenseReceipt(props.consortium, monthDescription, yearDescription, items)
                 .then(
-                    (exp) => props.setCurrentExpeses(exp),
+                    (exp) => {
+                        props.setCurrentExpeses(exp);
+                        triggerRefresh();
+                    },
                     () => setWrongTransaction(true))
         }
 
@@ -87,48 +89,89 @@ const AddExpensesReceipt = props => {
     }]
 
     return (
-        <div>
+        <Box sx={{ maxWidth: 500, mx: { xs: 'auto', sm: 0 } }}>
             {props.headers ? props.headers :
-                <div>
-                    <h3>
+                <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}>
                         Iniciar Expensas
-                    </h3>
-                    <hr />
-                </div>
+                    </Typography>
+                    <Divider />
+                </Box>
             }
-            <div>
-                Eliga mes y año para la nueva liquidación de expensas.
-                    </div>
-            <div style={{ marginTop: '3%' }}>
-                <Row>
-                    <Col sm={6}>
-                        <LocalDropdown
-                            elements={months}
-                            description={monthDescription}
-                            onClick={setMonthDescription}
-                        />
-                    </Col>
-                    <Col sm={6}>
-                        <LocalDropdown
-                            elements={range(2021, 2030)}
-                            description={yearDescription}
-                            onClick={setYearDescription}
-                        />
-                    </Col>
-                </Row>
-            </div>
-            <hr />
-            <div style={{ fontSize: '10px' }}>
-                Tenga en cuenta que una vez creada Liquidación de Expensas no podra eliminarla.
-                        </div>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.6 }}>
+                Seleccione mes y año para la nueva liquidación de expensas.
+            </Typography>
+
+            <Box sx={{ mb: 3 }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                value={monthDescription}
+                                onChange={(e) => setMonthDescription(e.target.value)}
+                                displayEmpty
+                                sx={{ borderRadius: 1 }}
+                            >
+                                <MenuItem value={defaultMonthDescription} disabled>
+                                    {defaultMonthDescription}
+                                </MenuItem>
+                                {months.map((month) => (
+                                    <MenuItem key={month} value={month}>
+                                        {month}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                value={yearDescription}
+                                onChange={(e) => setYearDescription(e.target.value)}
+                                displayEmpty
+                                sx={{ borderRadius: 1 }}
+                            >
+                                <MenuItem value={defaultYearDescription} disabled>
+                                    {defaultYearDescription}
+                                </MenuItem>
+                                {range(2021, 2030).map((year) => (
+                                    <MenuItem key={year} value={year}>
+                                        {year}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+                <Alert
+                    severity="info"
+                    sx={{
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        color: 'info.main',
+                        fontSize: '0.875rem',
+                        borderRadius: 1
+                    }}
+                >
+                    Una vez creada la liquidación de expensas no podrá eliminarla.
+                </Alert>
+            </Box>
+
             <ErrorHandler errors={errorDescriptions} />
-            <div>
-                <AddItemButton
-                    description={'Generar'}
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <Button
+                    variant="contained"
                     onClick={generateExpensesRecepit}
-                    disabled={props.validate} />
-            </div>
-        </div>
+                    disabled={invalidYear || invalidMonth}
+                    sx={{ textTransform: 'none', borderRadius: 2 }}
+                >
+                    Generar
+                </Button>
+            </Box>
+        </Box>
     )
 }
 

@@ -9,10 +9,13 @@ const theme = createTheme({
     shape: { borderRadius: 8 },
     typography: {
         fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif',
-        h4: { fontWeight: 700, letterSpacing: 0 },
-        h5: { fontWeight: 700, letterSpacing: 0 },
-        h6: { fontWeight: 700, letterSpacing: 0 },
-        button: { fontWeight: 700, letterSpacing: 0 },
+        fontSize: 14,
+        h4: { fontSize: '1.9rem', fontWeight: 700, letterSpacing: 0 },
+        h5: { fontSize: '1.4rem', fontWeight: 700, letterSpacing: 0 },
+        h6: { fontSize: '1.1rem', fontWeight: 700, letterSpacing: 0 },
+        body1: { fontSize: '0.9rem' },
+        body2: { fontSize: '0.82rem' },
+        button: { fontSize: '0.82rem', fontWeight: 700, letterSpacing: 0 },
     },
     components: {
         MuiCssBaseline: {
@@ -24,7 +27,14 @@ const theme = createTheme({
         MuiButton: {
             defaultProps: { disableElevation: true },
             styleOverrides: {
-                root: { borderRadius: 8, paddingInline: 16, minHeight: 40 },
+                root: {
+                    borderRadius: 8,
+                    paddingInline: 14,
+                    minHeight: 38,
+                    '&.MuiButton-containedPrimary:hover': { backgroundColor: '#1B2945' },
+                    '&.MuiButton-outlinedPrimary:hover': { backgroundColor: 'rgba(44, 64, 104, 0.08)' },
+                    '&.Mui-focusVisible': { outline: '3px solid rgba(82, 120, 197, 0.35)', outlineOffset: 2 },
+                },
             },
         },
         MuiCard: {

@@ -1,23 +1,30 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Col, Row, Badge, Button } from '../common/mui-components';
+import { Button as MuiButton } from '../common/mui-components';
+import { TextField, Box, Grid, Typography, Paper, Chip, Stack, Divider, IconButton, Tooltip } from '@mui/material';
+import { GetApp as DownloadIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { ExpensesReceiptContext } from '../expenses-receipt/expenses-receipt-provider/expenses-receipt-provider';
 import ExpensesReceiptService from '../../services/expense-receipt-service/expense-receipt-service';
 import { getStatus } from './utils';
-import { DownloadButton, FileUploaderButton } from '../common/buttons';
+import { FileUploaderButton } from '../common/buttons';
 import { downloadTicket } from '../utils/download-files';
 import { image } from 'react-dom-factories';
 import imageService from '../../services/image-service/image-service';
+import { CurrencyDisplay } from '../common/currency-display';
 
 const expensesReceiptService = new ExpensesReceiptService();
 
 const PaymentButton = props => {
-    return (<Button
-        className='button'
-        disabled={props.disabled}
-        style={{ float: 'right', fontSize: 'xx-small' }}
-        onClick={props.action}>
-        {props.description}
-    </Button>)
+    return (
+        <MuiButton
+            disabled={props.disabled}
+            onClick={props.action}
+            variant="contained"
+            size="small"
+            sx={{ textTransform: 'none', fontSize: '0.8rem' }}
+        >
+            {props.description}
+        </MuiButton>
+    )
 }
 
 const PaymentMemberView = props => {
@@ -61,60 +68,104 @@ const PaymentMemberView = props => {
     }, [props.amountChange]);
 
     const memberPaymentButton = (description, value) => {
-        return <PaymentButton description={description} action={() => handleChange(value)} disabled={expensesReceipt.paymentProcessed()} />
+        return <PaymentButton description={description} action={() => handleChange(value)} disabled={false} />
     }
 
 
     return (
-        <div className='payment-content'>
-            <Row className="justify-content-md-center">
-                <Col sm={1}>
-                    <Badge variant="dark">{props.memberReceipt?.member.member_name}</Badge>
-                </Col>
-                <Col sm={2}>
+        <Paper
+            sx={{
+                p: 2,
+                mb: 1,
+                borderRadius: 2,
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                '&:hover': {
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.08)'
+                },
+                transition: 'box-shadow 0.2s'
+            }}
+        >
+            <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={6} md={1.5}>
+                    <Chip
+                        label={props.memberReceipt?.member.member_name}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontWeight: 500 }}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6} md={1.5}>
                     {getStatus(props.memberReceipt)}
-                </Col>
-                <Col sm={2}>
-                    <div style={{ float: 'right', fontSize: 'smaller' }}>{`$ ${props.memberReceipt?.getTotalAmount()}`}</div>
-                </Col>
-                <Col sm={2}>
-                    <div style={{ float: 'right', fontSize: 'smaller' }}>
-                        <input
-                            style={{ width: "75%", float: 'right' }}
-                            type="number"
-                            disabled={expensesReceipt.paymentProcessed()}
-                            onBlur={(event) => handleChange(parseFloat(event.target.value))}
-                            value={amount}
-                            onChange={event => setAmount(event.target.value)}
-                        />
-                    </div>
-                </Col>
-                <Col sm={1}>
-                    <div style={{ float: 'right', fontSize: 'smaller' }}>
-                        {`$${props.memberReceipt?.difference()}`}
-                    </div>
-                </Col>
-                <Col sm={2}>
-                    <div>
-                        <FileUploaderButton className='option-button' style={{ fontSize: 'xx-small', float:'right'}} disabled={expensesReceipt.paymentProcessed()} handleFile={onFileChange} />
-                        {props.memberReceipt.filename ?
-                            <React.Fragment>
-                                <DownloadButton style={{ fontSize: 'xx-small', float:'right'}} onClick={() => downloadTicket()} />
-                                <Button style={{ fontSize: 'xx-small', float:'right'}} disabled={expensesReceipt.paymentProcessed()} className='option-button' onClick={cleanFile}>X</Button>
-                            </React.Fragment> : <React.Fragment />
-                        }
-                    </div>
-                </Col>
-                <Col sm={2}>
-                    <div>
+                </Grid>
+                <Grid item xs={12} sm={4} md={1.5}>
+                    <Box>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                            A pagar
+                        </Typography>
+                        <CurrencyDisplay amount={props.memberReceipt?.getTotalAmount?.()} variant="body2" sx={{ fontWeight: 600 }} />
+                    </Box>
+                </Grid>
+                <Grid item xs={12} sm={4} md={1.5}>
+                    <TextField
+                        type="number"
+                        disabled={false}
+                        onBlur={(event) => handleChange(parseFloat(event.target.value))}
+                        value={amount || ''}
+                        onChange={event => setAmount(event.target.value)}
+                        size="small"
+                        variant="outlined"
+                        label="Pagado"
+                        sx={{ width: '100%' }}
+                        inputProps={{
+                            step: "0.01",
+                            min: "0"
+                        }}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={4} md={1.5}>
+                    <Box>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                            Pendiente
+                        </Typography>
+                        <CurrencyDisplay amount={props.memberReceipt?.difference?.()} variant="body2" sx={{ fontWeight: 600 }} />
+                    </Box>
+                </Grid>
+                <Grid item xs={12} sm={6} md={1.5}>
+                    <Stack direction="row" spacing={0.5}>
+                        <FileUploaderButton disabled={false} handleFile={onFileChange} />
+                        {props.memberReceipt.filename && (
+                            <>
+                                <Tooltip title="Descargar">
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => downloadTicket(props.memberReceipt.ticket)}
+                                        sx={{ color: 'primary.main' }}
+                                    >
+                                        <DownloadIcon fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Eliminar">
+                                    <IconButton
+                                        size="small"
+                                        onClick={cleanFile}
+                                        sx={{ color: 'error.main' }}
+                                    >
+                                        <ClearIcon fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                            </>
+                        )}
+                    </Stack>
+                </Grid>
+                <Grid item xs={12} sm={6} md={1.5}>
+                    <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
                         {props.memberReceipt?.difference() === 0 ?
-                            memberPaymentButton('Cancelar Pago', 0) :
-                            memberPaymentButton('Pago Total', props.memberReceipt?.getTotalAmount())}
-                    </div>
-                </Col>
-            </Row>
-            <hr />
-        </div>
+                            memberPaymentButton('Cancelar', 0) :
+                            memberPaymentButton('Pagar', props.memberReceipt?.getTotalAmount())}
+                    </Box>
+                </Grid>
+            </Grid>
+        </Paper>
     )
 }
 
@@ -141,49 +192,114 @@ const PaymentStatusView = () => {
     }
 
     return (
-        <div style={{ marginLeft: '0.5%', marginRight: '0.5%' }}>
-            <Row className="justify-content-md-center" style={{ fontSize: 'xx-small' }}>
-                <Col sm={1}>Unidad</Col>
-                <Col sm={2}><div style={{ float: 'right' }}>Estado</div></Col>
-                <Col sm={2}><div style={{ float: 'right' }}>A pagar</div></Col>
-                <Col sm={2}><div style={{ float: 'right' }}>Monto</div></Col>
-                <Col sm={1}>Saldo pendiente</Col>
-                <Col sm={1}></Col>
-                <Col sm={3}>
-                    <div>
-                        {expensesReceipt?.totalDifference() === 0 ?
-                            <PaymentButton description={'Cancelar Todos'} action={cancelAllPayments} disabled={expensesReceipt.paymentProcessed()} /> :
-                            <PaymentButton description={'Pagar Todos'} action={payAll} disabled={expensesReceipt.paymentProcessed()} />
-                        }
-                    </div>
-                </Col>
+        <Box sx={{ p: 0 }}>
+            {/* Header Row */}
+            <Paper
+                sx={{
+                    p: 2,
+                    mb: 2,
+                    backgroundColor: 'rgba(44, 64, 104, 0.04)',
+                    borderRadius: 2,
+                    boxShadow: 'none',
+                    border: '1px solid',
+                    borderColor: 'divider'
+                }}
+            >
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={6} md={1.5}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', fontSize: '0.7rem' }}>
+                            Unidad
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={1.5}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', fontSize: '0.7rem' }}>
+                            Estado
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={1.5}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', fontSize: '0.7rem' }}>
+                            A pagar
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={1.5}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', fontSize: '0.7rem' }}>
+                            Pagado
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={1.5}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', fontSize: '0.7rem' }}>
+                            Pendiente
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={1.5}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', fontSize: '0.7rem' }}>
+                            Archivos
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={1.5}>
+                        <Box sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+                            {expensesReceipt?.totalDifference() === 0 ?
+                                <PaymentButton description={'Cancelar Todos'} action={cancelAllPayments} disabled={false} /> :
+                                <PaymentButton description={'Pagar Todos'} action={payAll} disabled={false} />
+                            }
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Paper>
 
-            </Row>
-            <hr />
-            {
-                expensesReceipt.member_expenses_receipt_details.map(memberReceipt => {
-                    return <PaymentMemberView amountChange={amountChange} setAmountChange={setAmountChange} memberReceipt={memberReceipt} />
-                })
-            }
-            <Row className="justify-content-md-center">
-                <Col sm={1}>Totales</Col>
-                <Col sm={2}></Col>
-                <Col sm={2}>
-                    <div style={{ float: 'right', fontSize: 'smaller', fontWeight: 'bold' }}>
-                        {`$ ${expensesReceipt.getTotalAmount()}`}
-                    </div>
-                </Col>
-                <Col sm={2}>
-                </Col>
-                <Col sm={1}>
-                    <div style={{ float: 'right', fontSize: 'smaller', fontWeight: 'bold' }}>
-                        {`$${expensesReceipt.totalDifference()}`}
-                    </div>
-                </Col>
-                <Col sm={4}>
-                </Col>
-            </Row>
-        </div>
+            {/* Members List */}
+            <Box sx={{ mb: 3 }}>
+                {expensesReceipt.member_expenses_receipt_details.map(memberReceipt => {
+                    return <PaymentMemberView
+                        key={memberReceipt.member.member_name}
+                        amountChange={amountChange}
+                        setAmountChange={setAmountChange}
+                        memberReceipt={memberReceipt}
+                    />
+                })}
+            </Box>
+
+            {/* Totals Row */}
+            <Paper
+                sx={{
+                    p: 2,
+                    backgroundColor: 'rgba(76, 175, 80, 0.05)',
+                    borderRadius: 2,
+                    boxShadow: 'none',
+                    border: '1px solid',
+                    borderColor: 'success.main'
+                }}
+            >
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={6} md={1.5}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                            Totales
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={1.5} />
+                    <Grid item xs={12} sm={4} md={1.5}>
+                        <Box>
+                            <CurrencyDisplay
+                                amount={expensesReceipt.getTotalAmount?.()}
+                                variant="body2"
+                                sx={{ fontWeight: 700, color: 'text.primary' }}
+                            />
+                        </Box>
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={1.5} />
+                    <Grid item xs={12} sm={4} md={1.5}>
+                        <Box>
+                            <CurrencyDisplay
+                                amount={expensesReceipt.totalDifference?.()}
+                                variant="body2"
+                                sx={{ fontWeight: 700, color: 'success.main' }}
+                            />
+                        </Box>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3} />
+                </Grid>
+            </Paper>
+        </Box>
     )
 }
 

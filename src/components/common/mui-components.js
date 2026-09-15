@@ -24,10 +24,10 @@ import {
     Typography,
 } from '@mui/material';
 
-const Button = ({ variant, ...props }) => (
+const Button = ({ variant, color = 'primary', ...props }) => (
     <MuiButton
-        variant={variant === 'link' ? 'text' : variant === 'outline-primary' ? 'outlined' : 'contained'}
-        color={variant === 'secondary' ? 'inherit' : 'primary'}
+        variant={variant === 'link' ? 'text' : variant === 'outline-primary' || variant === 'secondary' ? 'outlined' : 'contained'}
+        color={variant === 'secondary' ? 'primary' : color}
         {...props}
     />
 );
@@ -45,8 +45,8 @@ Card.Title = ({ children, ...props }) => <Typography component="div" variant="h6
 const Alert = ({ variant = 'info', ...props }) => (
     <MuiAlert severity={variant === 'danger' ? 'error' : variant} {...props} />
 );
-const Badge = ({ variant = 'default', ...props }) => (
-    <Chip size="small" color={variant === 'dark' ? 'default' : variant === 'danger' ? 'error' : 'primary'} {...props} />
+const Badge = ({ variant = 'default', children, ...props }) => (
+    <Chip size="small" label={children} color={variant === 'dark' ? 'default' : variant === 'danger' ? 'error' : 'primary'} {...props} />
 );
 const Container = ({ children, ...props }) => <MuiContainer maxWidth="xl" {...props}>{children}</MuiContainer>;
 const Row = ({ children, ...props }) => <Grid container spacing={2} {...props}>{children}</Grid>;
@@ -76,9 +76,22 @@ const Tabs = ({ defaultActiveKey, children, onSelect }) => {
     const [activeKey, setActiveKey] = useState(defaultActiveKey || tabs[0]?.props.eventKey);
     const activeTab = tabs.find(tab => tab.props.eventKey === activeKey);
     return <TabContext.Provider value={{ activeKey, setActiveKey }}>
-        <MuiTabs value={activeKey} onChange={(_, value) => { setActiveKey(value); onSelect?.(value); }}>
-            {tabs.map(tab => <MuiTab key={tab.props.eventKey} value={tab.props.eventKey} label={tab.props.title} />)}
-        </MuiTabs>
+        <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', mb: 2 }}>
+            <MuiTabs
+                value={activeKey}
+                onChange={(_, value) => { setActiveKey(value); onSelect?.(value); }}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                    minHeight: 44,
+                    '& .MuiTab-root': { minHeight: 44, textTransform: 'none', fontWeight: 700, color: 'text.secondary' },
+                    '& .Mui-selected': { color: 'primary.main' },
+                    '& .MuiTabs-indicator': { height: 3, borderRadius: 3, backgroundColor: 'secondary.main' },
+                }}
+            >
+                {tabs.map(tab => <MuiTab key={tab.props.eventKey} value={tab.props.eventKey} label={tab.props.title} />)}
+            </MuiTabs>
+        </Box>
         {activeTab?.props.children}
     </TabContext.Provider>;
 };
