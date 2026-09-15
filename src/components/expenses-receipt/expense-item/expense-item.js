@@ -1,195 +1,254 @@
-
-import React, { useState, useEffect, useContext } from 'react';
-import { Modal, Button, FormControl, Form, Tabs, Tab } from '../../common/mui-components';
+import React, { useState, useCallback, useContext } from 'react';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+    TextField,
+    Box,
+    Tabs,
+    Tab,
+    Typography,
+    Paper,
+    Alert
+} from '@mui/material';
+import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import ExpensesReceiptService from '../../../services/expense-receipt-service/expense-receipt-service';
 import { ConsortiumContext } from '../../consortium/consortium-provider/consortium-provider';
-import { detectActionClassName } from '../../utils/detect-action-button-class';
-import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import { FileUploaderButton } from '../../common/buttons';
 import FileSelectedItem from '../../utils/file-selected-ite';
 
 const service = new ExpensesReceiptService();
 
 const ExpensesItemView = (props) => {
-
-    const item = props.item ? props.item : service.createItemModel({ title: '', description: '', amount: null, ticket: null })
-    const shouldBeDisable = (props.actionDescription === "Eliminar")
-
-    const [currentItem, setCurrentItem] = useState(item)
-    const [oldItem, setOldItem] = useState(item)
-    const [valid, setValid] = useState(false)
-    const [description, setDescription] = useState(props.actionDescription)
-    const [selectedFile, setSelectedFile] = useState({name: currentItem.ticket})
+    const { item, actionDescription, show, showExpensesCRUD, handleAction } = props;
     const { consortium } = useContext(ConsortiumContext);
-    const [members, setMembers] = useState([]);
-    const [gridApi, setGridApi] = useState();
+    const isDeleteAction = actionDescription === 'Eliminar';
 
-    const onGridReady = params => {
+    const [tabValue, setTabValue] = useState('general');
+    const [gridApi, setGridApi] = useState(null);
+    const [formData, setFormData] = useState(() =>
+        item ? { ...item } : { title: '', description: '', amount: '', ticket: null }
+    );
+    const [selectedFile, setSelectedFile] = useState({ name: item?.ticket });
+    const [selectedMembers, setSelectedMembers] = useState(() => item?.members || []);
+    const [errors, setErrors] = useState({});
+
+    const handleGridReady = useCallback((params) => {
         setGridApi(params.api);
-        params.api.setRowData(consortium.members);
-        params.api.forEachNode(node => checkNode(node));
-    };
-
-    const checkNode = (node) => {
-        const data = node.data;
-        const value = currentItem.members.some(member => member.member_name == data.member_name);
-        node.setSelected(value);
-    }
-
-    const handleExpenseItem = () => {
-        props.showExpensesCRUD(false)
-        const members = gridApi.getSelectedNodes().map(node => node.data);
-        currentItem.set_members(members)
-        props.handleAction({ newItem: { item: currentItem, updatedFile: selectedFile }, oldItem: oldItem });
-        setDescription(null)
-        setValid(false)
-    }
-
-    const handleChange = (newValue) => {
-        const updatedItem = {
-            ...currentItem,
-            ...newValue
+        if (consortium?.members) {
+            params.api.setRowData(consortium.members);
+            params.api.forEachNode((node) => {
+                const isSelected = selectedMembers.some(
+                    (member) => member.member_name === node.data.member_name
+                );
+                node.setSelected(isSelected);
+            });
         }
-        setCurrentItem(service.createItemModel(updatedItem))
-    }
+    }, [consortium?.members, selectedMembers]);
 
-    const handleSubmit = (event) => {
-        const form = event.currentTarget;
-        if (!form.checkValidity()) {
-            setValid(true)
-            event.preventDefault();
-            event.stopPropagation();
-        } else {
-            handleExpenseItem();
+    const handleFormChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors((prev) => ({ ...prev, [field]: '' }));
         }
     };
 
-    const handleClose = () => { }
+    const handleFileChange = (file) => {
+        setSelectedFile(file);
+        handleFormChange('ticket', file.name);
+    };
 
-    const onFileChange = (file) => {
-        setSelectedFile(file)
-        handleChange({ ticket: file.name });
-    }
+    const handleFileRemove = () => {
+        setSelectedFile({});
+        handleFormChange('ticket', null);
+    };
 
-    const handleSelectedFileChange = newFile => {
-        setSelectedFile(newFile)
-        handleChange({ ticket: undefined });
-    }
+    const validateForm = () => {
+        const newErrors = {};
+        if (!formData.title?.trim()) newErrors.title = 'El título es requerido';
+        if (!formData.amount || formData.amount <= 0) newErrors.amount = 'El monto debe ser mayor a 0';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = () => {
+        if (!validateForm()) return;
+
+        const selectedNodes = gridApi?.getSelectedNodes() || [];
+        const members = selectedNodes.map((node) => node.data);
+
+        const itemToSave = service.createItemModel({
+            ...formData,
+            members: members.length > 0 ? members : []
+        });
+
+        handleAction({
+            newItem: { item: itemToSave, updatedFile: selectedFile },
+            oldItem: item
+        });
+
+        handleClose();
+    };
+
+    const handleClose = () => {
+        showExpensesCRUD(false);
+        setFormData(item ? { ...item } : { title: '', description: '', amount: '', ticket: null });
+        setSelectedMembers(item?.members || []);
+        setErrors({});
+        setTabValue('general');
+    };
 
     return (
-        <Modal show={props.show} onHide={handleClose}>
-            <Modal.Header closeButton onClick={() => props.showExpensesCRUD(false)}>
-                <Modal.Title>Agregar nuevo gasto</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div>
-                    <Form noValidate validated={valid} onSubmit={(event) => handleSubmit(event)}>
-                        <Tabs defaultActiveKey="general" id="uncontrolled-tab-example">
-                            <Tab eventKey="general" title="General">
-                                <div>
-                                    <Form.Group controlId="validateTitle">
-                                        <Form.Label>Titulo</Form.Label>
-                                        <Form.Control
-                                            id="basic-title"
-                                            aria-describedby="basic-addon3"
-                                            required
-                                            onChange={event => handleChange({ 'title': event.target.value })}
-                                            defaultValue={props.item?.title}
-                                            disabled={shouldBeDisable} />
-                                        <Form.Control.Feedback type="invalid">
-                                            Por favor defina un titulo
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group controlId="validateAmount">
-                                        <Form.Label>Monto</Form.Label>
-                                        <Form.Control
-                                            aria-label="Monto"
-                                            type="number"
-                                            required
-                                            onChange={event => handleChange({ 'amount': parseFloat(event.target.value) })}
-                                            defaultValue={props.item?.amount}
-                                            disabled={shouldBeDisable}
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            Por favor defina un monto
-                                </Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group controlId="validateDescription">
-                                        <Form.Label>{'Descripción'}</Form.Label>
-                                        <FormControl as="textarea"
-                                            aria-label="description"
-                                            onChange={event => handleChange({ 'description': event.target.value })}
-                                            defaultValue={props.item?.description}
-                                            disabled={shouldBeDisable} />
-                                    </Form.Group>
-                                    <hr />
-                                    <Form.Row>
-                                        <Form.Group controlId="validateTicket">
-                                            <Form.Label>Comprobante</Form.Label>
-                                            <div>
-                                                <FileUploaderButton handleFile={onFileChange} disabled={shouldBeDisable}/>
+        <Dialog open={show} onClose={handleClose} maxWidth="sm" fullWidth PaperProps={{
+            sx: { borderRadius: 2 }
+        }}>
+            <DialogTitle sx={{ fontWeight: 700, fontSize: '1.3rem', bgcolor: 'primary.main', color: 'white' }}>
+                {actionDescription} Gasto
+            </DialogTitle>
 
-                                                <FileSelectedItem selectedFile={selectedFile} setSelectedFile={handleSelectedFileChange}/>
-                                            </div>
-                                        </Form.Group>
-                                    </Form.Row>
-                                </div>
-                            </Tab>
-                            <Tab eventKey="particular" title="Unidades Funcionales">
-                                <div className="ag-theme-material" style={{ height: 310, }}>
-                                    <AgGridReact
-                                        defaultColDef={{
-                                            enableRowGroup: true,
-                                            enablePivot: true,
-                                            enableValue: true,
-                                            sortable: true,
-                                            resizable: true,
-                                            filter: true,
-                                            flex: 1,
-                                            minWidth: 50,
-                                        }}
-                                        rowData={members}
-                                        rowSelection={'multiple'}
-                                        pagination={true}
-                                        paginationPageSize={5}
-                                        suppressColumnsToolPanel={true}
-                                        onGridReady={onGridReady}>
-                                        <AgGridColumn
-                                            checkboxSelection={true}
-                                            headerName="Unidad Funcional"
-                                            field="member_name"
-                                        >
-                                        </AgGridColumn>
-                                        <AgGridColumn
-                                            field="user_email"
-                                            headerName="Correo de contacto"
-                                        >
-                                        </AgGridColumn>
-                                        <AgGridColumn
-                                            field="secondary_email"
-                                            headerName="Mail secundario"
-                                        >
-                                        </AgGridColumn>
-                                    </AgGridReact>
-                                </div>
-                            </Tab>
-                        </Tabs>
-                        <hr />
-                        <div className='buttons'>
-                            <Button className={detectActionClassName(description)} type="submit">
-                                {description}
-                            </Button>
-                            <Button variant="secondary" className={'cancel-button'} onClick={() => props.showExpensesCRUD(false)}>
-                                Cancelar
-                            </Button>
-                        </div>
-                    </Form>
-                </div>
-            </Modal.Body>
-        </Modal>
-    )
+            <DialogContent sx={{ pt: 3 }}>
+                <Tabs
+                    value={tabValue}
+                    onChange={(_, newValue) => setTabValue(newValue)}
+                    sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+                >
+                    <Tab label="Información General" value="general" />
+                    <Tab label="Unidades Funcionales" value="members" />
+                </Tabs>
 
-}
+                {tabValue === 'general' && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                            label="Título"
+                            fullWidth
+                            value={formData.title || ''}
+                            onChange={(e) => handleFormChange('title', e.target.value)}
+                            disabled={isDeleteAction}
+                            error={!!errors.title}
+                            helperText={errors.title}
+                            variant="outlined"
+                            size="small"
+                        />
 
+                        <TextField
+                            label="Monto"
+                            type="number"
+                            fullWidth
+                            value={formData.amount || ''}
+                            onChange={(e) => handleFormChange('amount', parseFloat(e.target.value) || '')}
+                            disabled={isDeleteAction}
+                            error={!!errors.amount}
+                            helperText={errors.amount}
+                            inputProps={{ step: '0.01', min: '0' }}
+                            variant="outlined"
+                            size="small"
+                        />
 
-export default ExpensesItemView
+                        <TextField
+                            label="Descripción"
+                            fullWidth
+                            multiline
+                            rows={4}
+                            value={formData.description || ''}
+                            onChange={(e) => handleFormChange('description', e.target.value)}
+                            disabled={isDeleteAction}
+                            variant="outlined"
+                            size="small"
+                        />
+
+                        <Box sx={{ pt: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                                Comprobante
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                <FileUploaderButton
+                                    handleFile={handleFileChange}
+                                    disabled={isDeleteAction}
+                                />
+                                {selectedFile?.name && (
+                                    <FileSelectedItem
+                                        selectedFile={selectedFile}
+                                        setSelectedFile={handleFileRemove}
+                                    />
+                                )}
+                            </Box>
+                        </Box>
+                    </Box>
+                )}
+
+                {tabValue === 'members' && (
+                    <Box>
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                            Selecciona las unidades funcionales a las que se asigna este gasto. Si no seleccionas ninguna, se aplicará a todo el consorcio.
+                        </Alert>
+                        <Paper sx={{ height: 350, bgcolor: '#fafafa' }}>
+                            <div className="ag-theme-material" style={{ height: '100%' }}>
+                                <AgGridReact
+                                    defaultColDef={{
+                                        enableRowGroup: false,
+                                        sortable: true,
+                                        resizable: true,
+                                        filter: true,
+                                        flex: 1,
+                                        minWidth: 100,
+                                    }}
+                                    rowData={consortium?.members || []}
+                                    rowSelection="multiple"
+                                    pagination={true}
+                                    paginationPageSize={5}
+                                    suppressColumnsToolPanel={true}
+                                    suppressMovableColumns={true}
+                                    onGridReady={handleGridReady}
+                                >
+                                    <AgGridColumn
+                                        checkboxSelection={true}
+                                        headerName="Seleccionar"
+                                        width={80}
+                                        sortable={false}
+                                        filter={false}
+                                    />
+                                    <AgGridColumn
+                                        field="member_name"
+                                        headerName="Unidad Funcional"
+                                    />
+                                    <AgGridColumn
+                                        field="user_email"
+                                        headerName="Email de Contacto"
+                                    />
+                                </AgGridReact>
+                            </div>
+                        </Paper>
+                    </Box>
+                )}
+            </DialogContent>
+
+            <DialogActions sx={{ p: 2, gap: 1 }}>
+                <Button
+                    variant="outlined"
+                    onClick={handleClose}
+                    sx={{ borderRadius: 1 }}
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={handleSubmit}
+                    disabled={isDeleteAction}
+                    sx={{
+                        borderRadius: 1,
+                        backgroundColor: isDeleteAction ? '#d32f2f' : 'primary.main',
+                        '&:hover': {
+                            backgroundColor: isDeleteAction ? '#b71c1c' : 'primary.dark'
+                        }
+                    }}
+                >
+                    {actionDescription}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+};
+
+export default ExpensesItemView;
