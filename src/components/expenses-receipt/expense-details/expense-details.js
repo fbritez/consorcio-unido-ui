@@ -82,7 +82,7 @@ const ExpenseDetails = (props) => {
                 {expenses.map((item, index) => (
                     <Accordion
                         key={index}
-                        defaultExpanded={index === 0}
+                        defaultExpanded={false}
                         sx={{
                             mb: 2,
                             borderRadius: 2,
@@ -121,7 +121,6 @@ const ExpenseDetails = (props) => {
                         </AccordionSummary>
 
                         <AccordionDetails sx={{ pt: 3, pb: 3 }}>
-                            {/* Description */}
                             {item.description && (
                                 <Box sx={{ mb: 3 }}>
                                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: 'text.secondary' }}>
@@ -140,8 +139,6 @@ const ExpenseDetails = (props) => {
                                     </Typography>
                                 </Box>
                             )}
-
-                            {/* Members / Unidades Funcionales */}
                             <Box sx={{ mb: 3 }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: 'text.secondary' }}>
                                     Unidades Funcionales
@@ -150,8 +147,6 @@ const ExpenseDetails = (props) => {
                             </Box>
 
                             <Divider sx={{ my: 2 }} />
-
-                            {/* Amount and Actions */}
                             <Grid container alignItems="center" spacing={2}>
                                 <Grid item xs={12} sm={6}>
                                     <Box>
@@ -250,7 +245,7 @@ const ExpenseDetails = (props) => {
                         </Grid>
                         <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
                             <CurrencyDisplay
-                                amount={expensesReceipt.total}
+                                amount={expensesReceipt.getTotalAmount()}
                                 variant="h6"
                                 color="success.main"
                                 sx={{ fontSize: { xs: '1.3rem', sm: '1.6rem' } }}
