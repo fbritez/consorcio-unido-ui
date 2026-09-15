@@ -1,8 +1,11 @@
 import axios from 'axios';
 import SERVICE_URL from '../utils/constants';
+import CryptoJS from 'crypto-js';
+
+const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || 'default-secure-key-change-in-production';
+
 const encrypt = value => {
-    //return CryptoJS.AES.encrypt(value, "Secret Passphrase").toString();
-    return value
+    return CryptoJS.AES.encrypt(value, ENCRYPTION_KEY).toString();
 }
 
 class LoginService {
