@@ -1,12 +1,5 @@
 import axios from 'axios';
 import SERVICE_URL from '../utils/constants';
-import CryptoJS from 'crypto-js';
-
-const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || 'default-secure-key-change-in-production';
-
-const encrypt = value => {
-    return CryptoJS.AES.encrypt(value, ENCRYPTION_KEY).toString();
-}
 
 class LoginService {
 
@@ -29,18 +22,14 @@ class LoginService {
     }
 
     async setCredentials( email, password){
-        const encryptedPassword = encrypt(password)
-        
-        const result = await axios.post(`${SERVICE_URL}/setCredentials`, {user_email: email, password: encryptedPassword});
-        
+        const result = await axios.post(`${SERVICE_URL}/setCredentials`, {user_email: email, password});
         return result
     }
 
     async authenticate(email, password){
         let result
-        const encryptedPassword = encrypt(password)
         try{
-            result = await axios.post(`${SERVICE_URL}/authenticate`, {user_email: email, password: encryptedPassword});
+            result = await axios.post(`${SERVICE_URL}/authenticate`, {user_email: email, password});
         }catch{
             result = {data: {success: false}}
         }
