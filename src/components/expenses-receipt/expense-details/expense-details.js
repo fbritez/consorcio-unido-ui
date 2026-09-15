@@ -165,33 +165,39 @@ const ExpenseDetails = (props) => {
                                     <Stack direction="row" spacing={1} sx={{ justifyContent: { xs: 'flex-start', sm: 'flex-end' } }}>
                                         {props.userAdministrator && (
                                             <>
-                                                <Tooltip title="Editar">
-                                                    <IconButton
-                                                        size="small"
-                                                        color="primary"
-                                                        onClick={() => props.updateAction?.(item)}
-                                                        sx={{
-                                                            '&:hover': {
-                                                                backgroundColor: 'rgba(44, 64, 104, 0.1)'
-                                                            }
-                                                        }}
-                                                    >
-                                                        <EditIcon fontSize="small" />
-                                                    </IconButton>
+                                                <Tooltip title={expensesReceipt.isOpen?.() ? "Editar" : "No se puede editar una expensa cerrada"}>
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="primary"
+                                                            onClick={() => props.updateAction?.(item)}
+                                                            disabled={!expensesReceipt.isOpen?.()}
+                                                            sx={{
+                                                                '&:hover': {
+                                                                    backgroundColor: 'rgba(44, 64, 104, 0.1)'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <EditIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
                                                 </Tooltip>
-                                                <Tooltip title="Eliminar">
-                                                    <IconButton
-                                                        size="small"
-                                                        color="error"
-                                                        onClick={() => props.removeAction?.(item)}
-                                                        sx={{
-                                                            '&:hover': {
-                                                                backgroundColor: 'rgba(211, 47, 47, 0.1)'
+                                                <Tooltip title={expensesReceipt.isOpen?.() ? "Eliminar" : "No se puede eliminar de una expensa cerrada"}>
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            color="error"
+                                                            onClick={() => props.removeAction?.(item)}
+                                                            disabled={!expensesReceipt.isOpen?.()}
+                                                            sx={{
+                                                                '&:hover': {
+                                                                    backgroundColor: 'rgba(211, 47, 47, 0.1)'
                                                             }
                                                         }}
-                                                    >
-                                                        <DeleteIcon fontSize="small" />
-                                                    </IconButton>
+                                                        >
+                                                            <DeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
                                                 </Tooltip>
                                             </>
                                         )}

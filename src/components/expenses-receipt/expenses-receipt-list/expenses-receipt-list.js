@@ -37,6 +37,7 @@ const ExpensesReceiptList = (props) => {
     const { consortium } = useContext(ConsortiumContext);
     const [isAdministrator, setIsAdministrator] = useState(false);
     const [statusFilter, setStatusFilter] = useState('todos');
+    const [expandedYear, setExpandedYear] = useState(null);
 
     useEffect(() => {
         const loadExpenses = async () => {
@@ -55,6 +56,14 @@ const ExpensesReceiptList = (props) => {
         };
         loadExpenses();
     }, [consortium, user, refreshTrigger]);
+
+    useEffect(() => {
+        if (expensesReceipt?.year) {
+            setExpandedYear(expensesReceipt.year.toString());
+        } else {
+            setExpandedYear(new Date().getFullYear().toString());
+        }
+    }, [expensesReceipt]);
 
     const getStatusChip = (item) => {
         if (item.isOpen?.()) {
@@ -228,7 +237,8 @@ const ExpensesReceiptList = (props) => {
                         {getExpensesByYear().map((yearGroup) => (
                             <Accordion
                                 key={yearGroup.year}
-                                defaultExpanded={parseInt(yearGroup.year) === new Date().getFullYear()}
+                                expanded={expandedYear === yearGroup.year}
+                                onChange={() => setExpandedYear(expandedYear === yearGroup.year ? null : yearGroup.year)}
                                 sx={{
                                     mb: 0,
                                     '&:before': { display: 'none' },

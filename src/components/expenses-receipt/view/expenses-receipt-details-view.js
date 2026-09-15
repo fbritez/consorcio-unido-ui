@@ -336,7 +336,7 @@ const MemberExpensesReceiptDetailView = () => {
     }, [expensesReceipt, user]);
 
     return (
-        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+        <Box >
             <ExpensesReceiptDetailHeader />
             <MemberDetailHeader />
 
