@@ -1,9 +1,5 @@
-import axios from 'axios';
+import axios from '../utils/http-client';
 import SERVICE_URL from '../utils/constants';
-const encrypt = value => {
-    //return CryptoJS.AES.encrypt(value, "Secret Passphrase").toString();
-    return value
-}
 
 class LoginService {
 
@@ -13,8 +9,8 @@ class LoginService {
         let firstLogin = false
 
         try {
-            const response =  await axios.get(`${SERVICE_URL}/validateUserEmail?user_email=${email}`);   
-            firstLogin = response.data 
+            const response =  await axios.get(`${SERVICE_URL}/validateUserEmail?user_email=${email}`);
+            firstLogin = response.data
             validEmail = true
         } catch (error) {
         }
@@ -26,22 +22,36 @@ class LoginService {
     }
 
     async setCredentials( email, password){
-        const encryptedPassword = encrypt(password)
-        
-        const result = await axios.post(`${SERVICE_URL}/setCredentials`, {user_email: email, password: encryptedPassword});
-        
+        const result = await axios.post(`${SERVICE_URL}/setCredentials`, {user_email: email, password});
         return result
     }
 
     async authenticate(email, password){
         let result
-        const encryptedPassword = encrypt(password)
         try{
-            result = await axios.post(`${SERVICE_URL}/authenticate`, {user_email: email, password: encryptedPassword});
+            // The backend answers with a Set-Cookie carrying the signed session
+            // token; withCredentials is what lets the browser keep it.
+            result = await axios.post(`${SERVICE_URL}/authenticate`, {user_email: email, password});
         }catch{
             result = {data: {success: false}}
         }
         return result.data.success
+    }
+
+    async getSession(){
+        try{
+            const result = await axios.get(`${SERVICE_URL}/session`);
+            return result.data
+        }catch{
+            return {authenticated: false}
+        }
+    }
+
+    async logout(){
+        try{
+            await axios.post(`${SERVICE_URL}/logout`, {});
+        }catch{
+        }
     }
 }
 

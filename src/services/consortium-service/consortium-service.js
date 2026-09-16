@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../utils/http-client';
 import Consortium from '../../model/consortium'
 import SERVICE_URL from '../utils/constants'
 

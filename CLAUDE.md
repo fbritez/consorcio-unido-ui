@@ -26,6 +26,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Node version: Use Node LTS
 - No `.env` file needed currently; API URL is hardcoded
 
+### Authentication
+- The session lives in an HttpOnly cookie set by the backend on `POST /authenticate`, so it is never readable from JavaScript.
+- `src/services/utils/http-client.js` is the shared axios instance every service imports. It sets `withCredentials` so the cookie travels with each call, and installs an interceptor that signs the user out when a protected call answers 401.
+- `main-view.js` restores the session on load via `GET /session`, so a reload keeps the user logged in. Running the backend locally (`APP_ENV` unset) it reports `local: true` and nothing is enforced.
+- Logging out calls `POST /logout` to clear the cookie server side.
+
 ## Architecture
 
 ### Core Stack

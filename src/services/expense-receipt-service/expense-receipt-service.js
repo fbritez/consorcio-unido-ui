@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../utils/http-client';
 import ExpensesReceipt from '../../model/expenses-receipt';
 import ExpenseReceiptitem from '../../model/expense-receipt-item';
 import imageService from '../image-service/image-service';

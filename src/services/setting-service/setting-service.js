@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '../utils/http-client';
 import SERVICE_URL from '../utils/constants'
 
 class SettingService{

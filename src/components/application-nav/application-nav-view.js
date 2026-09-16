@@ -5,6 +5,7 @@ import logo from '../../images/medium-icon.png';
 import { BsPeopleCircle } from 'react-icons/bs';
 import { UserContext } from '../user-provider/user-provider';
 import consortiumService from '../../services/consortium-service/consortium-service';
+import loginService from '../../services/login-service/login-service';
 import ConsortiumDropdown from '../consortium/consortium-dropdown';
 import { consortiums, notifications, claims, expenses, login } from '../main/routes';
 import { PathContext } from '../main/path-provider';
@@ -38,8 +39,11 @@ const AppliactionNavView = () => {
         };
     }, [user]);
 
-    const logout = () => {
+    const logout = async () => {
         setUserMenuAnchor(null)
+        // Drop the session cookie on the backend as well, otherwise the token
+        // would keep being accepted until it expires.
+        await loginService.logout()
         setUser(undefined)
         setPath(login())
     }
