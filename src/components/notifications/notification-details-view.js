@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Chip, Divider, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { Favorite, FavoriteBorder, ThumbUpAlt, ThumbUpAltOutlined } from '@mui/icons-material';
+import { Box, Chip, Divider, IconButton, Stack, Tooltip, Typography, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
+import { Favorite, FavoriteBorder, ThumbUpAlt, ThumbUpAltOutlined, Close } from '@mui/icons-material';
 import { Card, Button } from '../common/mui-components';
 import { DownloadButton } from '../common/buttons';
 import { downloadTicket } from '../utils/download-files';
+import notificationService from '../../services/notification-service/notification-service';
 
 
 const NotificatioDetailsView = props => {
@@ -19,6 +20,9 @@ const NotificatioDetailsView = props => {
         heart: notification.reactions?.heart || 0,
     });
     const [loading, setLoading] = useState(false);
+    const [showReactionsModal, setShowReactionsModal] = useState(false);
+    const [selectedReactionType, setSelectedReactionType] = useState(null);
+    const [reactedUsers, setReactedUsers] = useState([]);
 
     const shoudlUseSmallText = () => notification.message.length > defaultValue;
 
@@ -38,12 +42,7 @@ const NotificatioDetailsView = props => {
 
     const loadReactions = async () => {
         try {
-            const params = new URLSearchParams({
-                notificationId: notification.id,
-                userEmail: userEmail
-            });
-            const response = await fetch(`/notification/reactions?${params}`);
-            const data = await response.json();
+            const data = await notificationService.loadReactions(notification.id, userEmail);
             setReactionCounts(data.counts);
             setReaction(data.userReaction);
         } catch (error) {
@@ -56,25 +55,25 @@ const NotificatioDetailsView = props => {
 
         setLoading(true);
         try {
-            const body = {
-                notificationId: notification.id,
-                userEmail: userEmail,
-                reactionType: nextReaction
-            };
-
-            const response = await fetch('/notification/reaction', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            if (response.ok) {
-                await loadReactions();
-            }
+            await notificationService.toggleReaction(notification.id, userEmail, nextReaction);
+            await loadReactions();
         } catch (error) {
             console.error('Error toggling reaction:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleShowReactions = async (reactionType) => {
+        if (!notification.id) return;
+
+        try {
+            const users = await notificationService.getUsersWhoReacted(notification.id, reactionType);
+            setReactedUsers(users);
+            setSelectedReactionType(reactionType);
+            setShowReactionsModal(true);
+        } catch (error) {
+            console.error('Error loading reactions users:', error);
         }
     };
 
@@ -131,7 +130,18 @@ const NotificatioDetailsView = props => {
                                 {reaction === 'like' ? <ThumbUpAlt fontSize="small" /> : <ThumbUpAltOutlined fontSize="small" />}
                             </IconButton>
                         </Tooltip>
-                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 16 }}>{reactionCounts.like}</Typography>
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                                minWidth: 16,
+                                cursor: 'pointer',
+                                '&:hover': { textDecoration: 'underline' }
+                            }}
+                            onClick={() => reactionCounts.like > 0 && handleShowReactions('like')}
+                        >
+                            {reactionCounts.like}
+                        </Typography>
                         <Tooltip title="Me encanta">
                             <IconButton
                                 aria-label="Me encanta"
@@ -143,10 +153,48 @@ const NotificatioDetailsView = props => {
                                 {reaction === 'heart' ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
                             </IconButton>
                         </Tooltip>
-                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 16 }}>{reactionCounts.heart}</Typography>
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{
+                                minWidth: 16,
+                                cursor: 'pointer',
+                                '&:hover': { textDecoration: 'underline' }
+                            }}
+                            onClick={() => reactionCounts.heart > 0 && handleShowReactions('heart')}
+                        >
+                            {reactionCounts.heart}
+                        </Typography>
                     </Stack>
                 </Card.Body>
             </Card>
+
+            <Dialog open={showReactionsModal} onClose={() => setShowReactionsModal(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {selectedReactionType === 'like' ? 'Me gusta' : 'Me encanta'}
+                    <IconButton
+                        onClick={() => setShowReactionsModal(false)}
+                        sx={{ color: 'text.secondary' }}
+                    >
+                        <Close fontSize="small" />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    {reactedUsers.length > 0 ? (
+                        <List>
+                            {reactedUsers.map((user, index) => (
+                                <ListItem key={index}>
+                                    <ListItemText
+                                        primary={user.memberName || user.email}
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+                    ) : (
+                        <Typography>No hay reacciones</Typography>
+                    )}
+                </DialogContent>
+            </Dialog>
         </Box>
     )
 }

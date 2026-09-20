@@ -19,7 +19,7 @@ const NotificationListView = props => {
     return(
         <div>
         {   notifications?.map(notification => {
-                        return (<NotificatioDetailsView notification={notification} userEmail={user?.email}/>)
+                        return (<NotificatioDetailsView key={notification.id} notification={notification} userEmail={user?.email}/>)
                     })
         }
         </div>
