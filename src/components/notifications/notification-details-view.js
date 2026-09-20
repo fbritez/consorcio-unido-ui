@@ -10,6 +10,7 @@ const NotificatioDetailsView = props => {
 
     const defaultValue = 150;
     const notification = props.notification;
+    const userEmail = props.userEmail;
     const [ text, setText ] = useState(notification.message);
     const [useSmallText, setUseSmallText ] = useState(true);
     const [reaction, setReaction] = useState(notification.userReaction || null);
@@ -17,6 +18,7 @@ const NotificatioDetailsView = props => {
         like: notification.reactions?.like || 0,
         heart: notification.reactions?.heart || 0,
     });
+    const [loading, setLoading] = useState(false);
 
     const shoudlUseSmallText = () => notification.message.length > defaultValue;
 
@@ -27,6 +29,54 @@ const NotificatioDetailsView = props => {
         const newString = notification.message.substring(0,characterCount);
         setText(newString)
     }, [useSmallText]);
+
+    useEffect(() => {
+        if (notification.id && userEmail) {
+            loadReactions();
+        }
+    }, [notification.id, userEmail]);
+
+    const loadReactions = async () => {
+        try {
+            const params = new URLSearchParams({
+                notificationId: notification.id,
+                userEmail: userEmail
+            });
+            const response = await fetch(`/notification/reactions?${params}`);
+            const data = await response.json();
+            setReactionCounts(data.counts);
+            setReaction(data.userReaction);
+        } catch (error) {
+            console.error('Error loading reactions:', error);
+        }
+    };
+
+    const handleReactionToggle = async (nextReaction) => {
+        if (!userEmail || !notification.id) return;
+
+        setLoading(true);
+        try {
+            const body = {
+                notificationId: notification.id,
+                userEmail: userEmail,
+                reactionType: nextReaction
+            };
+
+            const response = await fetch('/notification/reaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (response.ok) {
+                await loadReactions();
+            }
+        } catch (error) {
+            console.error('Error toggling reaction:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const formatDate = () => {
         const rawDate = notification.publishDate;
@@ -42,22 +92,6 @@ const NotificatioDetailsView = props => {
         return rawDate?.replace('GMT', '').substring(4) || 'Fecha no disponible';
     }
 
-    const toggleReaction = nextReaction => {
-        setReactionCounts(previousCounts => {
-            const nextCounts = { ...previousCounts };
-
-            if (reaction) {
-                nextCounts[reaction] = Math.max(0, nextCounts[reaction] - 1);
-            }
-
-            if (reaction !== nextReaction) {
-                nextCounts[nextReaction] += 1;
-            }
-
-            return nextCounts;
-        });
-        setReaction(reaction === nextReaction ? null : nextReaction);
-    };
 
     return (
         <Box sx={{ mb: 2 }}>
@@ -90,7 +124,8 @@ const NotificatioDetailsView = props => {
                             <IconButton
                                 aria-label="Me gusta"
                                 size="small"
-                                onClick={() => toggleReaction('like')}
+                                onClick={() => handleReactionToggle('like')}
+                                disabled={loading}
                                 sx={{ color: reaction === 'like' ? 'primary.main' : 'text.secondary', backgroundColor: reaction === 'like' ? 'rgba(44, 64, 104, 0.08)' : 'transparent' }}
                             >
                                 {reaction === 'like' ? <ThumbUpAlt fontSize="small" /> : <ThumbUpAltOutlined fontSize="small" />}
@@ -101,7 +136,8 @@ const NotificatioDetailsView = props => {
                             <IconButton
                                 aria-label="Me encanta"
                                 size="small"
-                                onClick={() => toggleReaction('heart')}
+                                onClick={() => handleReactionToggle('heart')}
+                                disabled={loading}
                                 sx={{ ml: 1, color: reaction === 'heart' ? 'secondary.main' : 'text.secondary', backgroundColor: reaction === 'heart' ? 'rgba(201, 120, 74, 0.1)' : 'transparent' }}
                             >
                                 {reaction === 'heart' ? <Favorite fontSize="small" /> : <FavoriteBorder fontSize="small" />}
