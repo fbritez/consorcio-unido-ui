@@ -43,6 +43,11 @@ class LoginService {
         }
         return result.data.success
     }
+
+    async sendContactMessage(contactData){
+        const result = await axios.post(`${SERVICE_URL}/sendContactMessage`, contactData);
+        return result.data;
+    }
 }
 
 export default new LoginService();

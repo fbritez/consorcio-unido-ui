@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Box } from '@mui/material';
+import { Box, Grid, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Link } from '@mui/material';
 import { UserContext } from '../user-provider/user-provider';
 import { Card, Form, Button, Alert } from '../common/mui-components';
 import logo from '../../images/medium-icon.png';
@@ -21,6 +21,10 @@ function Login() {
     const [password, setPassword] = useState();
     const [confirmPassword, setConfirmPassword] = useState(false);
     const [invalidPassword, setInvalidPassword] = useState(false);
+    const [openContact, setOpenContact] = useState(false);
+    const [contactName, setContactName] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
     const { setUser } = useContext(UserContext);
     const { setPath } = useContext(PathContext);
 
@@ -70,84 +74,206 @@ function Login() {
         setDisableEmail(false);
     }
 
+    const handleContactOpen = () => {
+        setOpenContact(true);
+    }
+
+    const handleContactClose = () => {
+        setOpenContact(false);
+        setContactName('');
+        setContactEmail('');
+        setContactMessage('');
+    }
+
+    const handleContactSubmit = async () => {
+        try {
+            await service.sendContactMessage({
+                name: contactName,
+                email: contactEmail,
+                message: contactMessage
+            });
+            handleContactClose();
+        } catch (error) {
+            console.error('Error sending contact message:', error);
+        }
+    }
+
     useEffect(() => {
     }, [validEmail, firstLogin]);
 
     return (
-        <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 2, background: 'linear-gradient(135deg, #1B2945 0%, #2C4068 55%, #5278C5 100%)' }}>
-                <Card sx={{ width: '100%', maxWidth: 430, textAlign: 'center', p: { xs: 1, sm: 2 } }}>
-                    <Box component="img" src={logo} alt="Consorcio Unido" sx={{ width: 112, height: 82, objectFit: 'contain', mx: 'auto', mt: 1 }} />
-                        <Card.Body>
-                            <Card.Title>
-                                Bienvenido, por favor ingresa tu direccion de correo
-                        </Card.Title>
-                            <Card.Text>
-                                <Form.Group controlId="">
-                                    <EmailField data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
-                                </Form.Group>
-                                {
-                                    !validEmail && loaded &&
-                                    <div>
-                                        <Alert variant='danger'>
-                                            El correo indicano no pertenece a ningun consorcio ni administracion, por favor pongase en contacto con su administracion o contacte a Support.
-                                    </Alert>
-                                    </div>
-                                }
-                                {!validEmail &&
-                                    <div>
-                                        <Button data-testid='siguiente' sx={{ mb: 1 }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
-                                            Siguiente
-                                        </Button>
-                                    </div>
-                                }
-                                {validEmail && firstLogin &&
-                                    <div>
-                                        <Form.Group controlId="formBasicPassword">
-                                            <Form.Label>Ingrese su nuevo password</Form.Label>
-                                            <Form.Control type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
-                                        </Form.Group>
-                                        <Form.Group controlId="formBasicPassword">
-                                            <Form.Label>Confirme su nuevo password</Form.Label>
-                                            <Form.Control type="password" placeholder="Password" onChange={event => { setConfirmPassword(event.target.value) }} />
-                                        </Form.Group>
-                                        {
-                                            invalidPassword &&
-                                            <div>
-                                                <Alert variant='warning'>
-                                                    Las contraseñas ingresadas no coinciden.
-                                                </Alert>
-                                            </div>
-                                        }
-                                        <Button sx={{ mb: 1 }} onClick={setCredentials}>
-                                            Confirmar
-                                        </Button>
-                                    </div>
-                                }
-                                {validEmail && !firstLogin &&
-                                    <div>
-                                        <Form.Group controlId="formBasicPassword">
-                                            <Form.Label>Password</Form.Label>
-                                            <Form.Control data-testid='password' type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
-                                        </Form.Group>
-                                        {
-                                            invalidPassword &&
-                                            <div>
-                                                <Alert variant='danger'>
-                                                    Password incorrecto
-                                                </Alert>
-                                            </div>
-                                        }
-                                        <Button data-testid='login' sx={{ mb: 1 }} onClick={() => processAuthentication()}>
-                                            Login
-                                        </Button>
-                                        <Button variant="secondary" sx={{ mb: 1 }} onClick={() => clean()}>
-                                            Otro mail
-                                        </Button>
-                                    </div>
-                                }
-                            </Card.Text>
-                        </Card.Body>
-                </Card>
+        <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1B2945 0%, #2C4068 55%, #5278C5 100%)', py: 4 }}>
+            <Container maxWidth="lg" sx={{ height: '100%' }}>
+                <Grid container spacing={4} sx={{ minHeight: 'calc(100vh - 32px)', alignItems: 'center', justifyContent: 'center' }}>
+
+                    <Grid item xs={12} sm={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Box sx={{ textAlign: 'center', color: 'white' }}>
+                            <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
+                                Bienvenido
+                            </Typography>
+                            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
+                                Plataforma de Gestión de Consorcios
+                            </Typography>
+                            <Box
+                                component="img"
+                                src={logo}
+                                alt="Consorcio Unido"
+                                sx={{
+                                    width: 200,
+                                    height: 150,
+                                    objectFit: 'contain',
+                                    mb: 4,
+                                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                                }}
+                            />
+                            <Typography variant="body1" sx={{ opacity: 0.8, maxWidth: 400, mx: 'auto' }}>
+                                Accede a tu cuenta para gestionar tu consorcio de manera eficiente y segura
+                            </Typography>
+                        </Box>
+                    </Grid>
+
+                    <Grid item xs={12} sm={12} md={6}>
+                        <Card sx={{
+                            width: '100%',
+                            p: { xs: 2, sm: 3 },
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                            borderRadius: 2
+                        }}>
+                            <Card.Body>
+                                <Box sx={{ mb: 3 }}>
+                                    <Card.Title sx={{ fontSize: '1.5rem' }}>
+                                        Inicia Sesión
+                                    </Card.Title>
+                                </Box>
+                                <Card.Text>
+                                    {!validEmail && (
+                                        <div>
+                                            <Form.Group controlId="">
+                                                <EmailField data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
+                                            </Form.Group>
+                                            {
+                                                !validEmail && loaded &&
+                                                <div>
+                                                    <Alert variant='danger'>
+                                                        El correo indicado no pertenece a ningún consorcio ni administración. Por favor, contacta con tu administrador o con nosotros.
+                                                    </Alert>
+                                                </div>
+                                            }
+                                            <Button data-testid='siguiente' sx={{ mb: 1, width: '100%' }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
+                                                Siguiente
+                                            </Button>
+                                        </div>
+                                    )}
+                                    {validEmail && firstLogin && (
+                                        <div>
+                                            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+                                                Crea tu contraseña
+                                            </Typography>
+                                            <Form.Group controlId="formBasicPassword">
+                                                <Form.Label>Ingrese su nuevo password</Form.Label>
+                                                <Form.Control type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
+                                            </Form.Group>
+                                            <Form.Group controlId="formConfirmPassword">
+                                                <Form.Label>Confirme su nuevo password</Form.Label>
+                                                <Form.Control type="password" placeholder="Confirmar Password" onChange={event => { setConfirmPassword(event.target.value) }} />
+                                            </Form.Group>
+                                            {
+                                                invalidPassword &&
+                                                <div>
+                                                    <Alert variant='warning'>
+                                                        Las contraseñas ingresadas no coinciden.
+                                                    </Alert>
+                                                </div>
+                                            }
+                                            <Button sx={{ mb: 1, width: '100%' }} onClick={setCredentials}>
+                                                Confirmar
+                                            </Button>
+                                        </div>
+                                    )}
+                                    {validEmail && !firstLogin && (
+                                        <div>
+                                            <Form.Group controlId="formBasicPassword">
+                                                <Form.Label>Contraseña</Form.Label>
+                                                <Form.Control data-testid='password' type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
+                                            </Form.Group>
+                                            {
+                                                invalidPassword &&
+                                                <div>
+                                                    <Alert variant='danger'>
+                                                        Contraseña incorrecta
+                                                    </Alert>
+                                                </div>
+                                            }
+                                            <Button data-testid='login' sx={{ mb: 1, width: '100%' }} onClick={() => processAuthentication()}>
+                                                Ingresar
+                                            </Button>
+                                            <Button variant="secondary" sx={{ mb: 1, width: '100%' }} onClick={() => clean()}>
+                                                Usar otro correo
+                                            </Button>
+                                        </div>
+                                    )}
+                                </Card.Text>
+                            </Card.Body>
+                        </Card>
+
+                        <Box sx={{ mt: 3, textAlign: 'center' }}>
+                            <Link
+                                component="button"
+                                variant="body2"
+                                onClick={handleContactOpen}
+                                sx={{
+                                    color: 'white',
+                                    textDecoration: 'none',
+                                    fontSize: '0.95rem',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >
+                                ¿Necesitas ayuda? Contacta con los administradores
+                            </Link>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Container>
+
+            <Dialog open={openContact} onClose={handleContactClose} maxWidth="sm" fullWidth>
+                <DialogTitle>Contactar a los Administradores</DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Nombre"
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Correo electrónico"
+                        type="email"
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Mensaje"
+                        multiline
+                        rows={4}
+                        value={contactMessage}
+                        onChange={(e) => setContactMessage(e.target.value)}
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="secondary" onClick={handleContactClose}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleContactSubmit}>
+                        Enviar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
