@@ -148,8 +148,8 @@ function Login() {
                                 <Card.Text>
                                     {!validEmail && (
                                         <div>
-                                            <Form.Group controlId="">
-                                                <EmailField data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
+                                            <Form.Group controlId="" sx={{ width: '100%' }}>
+                                                <EmailField fullWidth data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
                                             </Form.Group>
                                             {
                                                 !validEmail && loaded &&
