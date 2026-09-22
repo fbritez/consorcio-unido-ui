@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Chip, Divider, IconButton, Stack, Tooltip, Typography, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 import { Favorite, FavoriteBorder, ThumbUpAlt, ThumbUpAltOutlined, Close } from '@mui/icons-material';
 import { Card, Button } from '../common/mui-components';
@@ -26,21 +26,13 @@ const NotificatioDetailsView = props => {
 
     const shoudlUseSmallText = () => notification.message.length > defaultValue;
 
-    const detectCharacterCounter = () => (useSmallText && shoudlUseSmallText()) ? defaultValue : notification.message.length;
-
-    useEffect(async () => {
-        const characterCount = detectCharacterCounter()
+    useEffect(() => {
+        const characterCount = (useSmallText && notification.message.length > defaultValue) ? defaultValue : notification.message.length;
         const newString = notification.message.substring(0,characterCount);
         setText(newString)
-    }, [useSmallText]);
+    }, [useSmallText, notification.message]);
 
-    useEffect(() => {
-        if (notification.id && userEmail) {
-            loadReactions();
-        }
-    }, [notification.id, userEmail]);
-
-    const loadReactions = async () => {
+    const loadReactions = useCallback(async () => {
         try {
             const data = await notificationService.loadReactions(notification.id, userEmail);
             setReactionCounts(data.counts);
@@ -48,7 +40,13 @@ const NotificatioDetailsView = props => {
         } catch (error) {
             console.error('Error loading reactions:', error);
         }
-    };
+    }, [notification.id, userEmail]);
+
+    useEffect(() => {
+        if (notification.id && userEmail) {
+            loadReactions();
+        }
+    }, [notification.id, userEmail, loadReactions]);
 
     const handleReactionToggle = async (nextReaction) => {
         if (!userEmail || !notification.id) return;

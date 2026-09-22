@@ -3,7 +3,7 @@ import { Box, Button as MuiButton, Divider, Stack, TextField, Typography } from 
 import { ConsortiumContext } from '../consortium-provider/consortium-provider';
 import consortiumService from '../../../services/consortium-service/consortium-service';
 import ConsortiumMembersTable from '../consortium-members-table/consortium-members-table';
-import { Card, Button, Tabs, Tab, Alert } from '../../common/mui-components';
+import { Tabs, Tab, Alert } from '../../common/mui-components';
 import { UserContext } from '../../user-provider/user-provider';
 import settingService from '../../../services/setting-service/setting-service';
 
@@ -54,17 +54,7 @@ const BasicConsortiumDetails = props => {
 }
 
 const AdvancedConsortiumDetails = props => {
-    const { consortium, setConsortium } = useContext(ConsortiumContext);
-
-    const disableConsortium = () => {
-        consortium.setAsDisabled();
-        service.update(consortium).then(() => {
-            props.setUpdated(!props.updated);
-            setConsortium(undefined);
-        }, () => {
-            props.setAction({ action: 'danger', description: 'Los datos no se han guardado correctamente' })
-        })
-    }
+    const { consortium } = useContext(ConsortiumContext);
 
     const memberValue = () => props.settings?.memberValues ? props.settings.memberValues : ' ';
 
@@ -102,15 +92,18 @@ const ConsortiumDetails = (props) => {
     const { consortium, setConsortium } = useContext(ConsortiumContext);
     const { user } = useContext(UserContext);
     const [updatedMembers, setUpdatedMembers] = useState()
-    const [valid, setValid] = useState(false)
+    const [, setValid] = useState(false)
     const [actionDescription, setActionDescription] = useState();
     const [consortiumSettings, setConsortiumSettings] = useState();
     const [shouldRefresh, setShouldRefresh] = useState();
 
-    useEffect(async () => {
+    useEffect(() => {
         setActionDescription(undefined);
-        const result = await settingService.getConsortiumSettings(consortium);
-        setConsortiumSettings(result);
+        const fetchConsortiumSettings = async () => {
+            const result = await settingService.getConsortiumSettings(consortium);
+            setConsortiumSettings(result);
+        };
+        fetchConsortiumSettings();
     }, [consortium]);
 
     const handleChange = (values) => {

@@ -10,10 +10,13 @@ const NotificationListView = props => {
     const { user } = useContext(UserContext);
     const [ notifications, setNotifications ] = useState([])
 
-    useEffect(async () => {
+    useEffect(() => {
         setNotifications([]);
-        const result = await notificationService.notificationFor(consortium);
-        setNotifications(result);
+        const fetchNotifications = async () => {
+            const result = await notificationService.notificationFor(consortium);
+            setNotifications(result);
+        };
+        fetchNotifications();
     }, [consortium, props.shouldRefresh]);
 
     return(

@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
-import { Box, Chip, Container, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Container, Grid, Paper, Stack, Typography } from '@mui/material';
 import ConsortiumsListView from '../consortiums-list-view/consortiums-list-view';
 import { UserContext } from '../../user-provider/user-provider';
-import { ConsortiumContext, ConsortiumContextProvider } from '../consortium-provider/consortium-provider';
+import { ConsortiumContext } from '../consortium-provider/consortium-provider';
 import authenticationHandler from '../../login/authentication-handler';
 import ConsortiumDetails from '../consortium-details-view/consortium-details-view';
 
@@ -10,7 +10,7 @@ const ConsortiumsGeneralView = (props) => {
 
     const { consortium, setConsortium } = useContext(ConsortiumContext);
     const [updated, setUpdated] = useState(false);
-    const { user, setUser } = useContext(UserContext);
+    const { user } = useContext(UserContext);
 
 
     const setConsortiums = (c) => {
@@ -58,14 +58,6 @@ const ConsortiumsGeneralView = (props) => {
                 </Grid>
             </Container>
         </Box>
-    )
-}
-
-const ConsortiumsMainView = (props) => {
-    return (
-        <ConsortiumContextProvider>
-            <ConsortiumsGeneralView />
-        </ConsortiumContextProvider>
     )
 }
 
