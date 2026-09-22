@@ -148,7 +148,7 @@ function Login() {
                                 <Card.Text>
                                     {!validEmail && (
                                         <div>
-                                            <Form.Group controlId="" sx={{ width: '100%' }}>
+                                            <Form.Group controlId="" sx={{ width: '100%', mb: 3 }}>
                                                 <EmailField fullWidth data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
                                             </Form.Group>
                                             {
@@ -159,7 +159,7 @@ function Login() {
                                                     </Alert>
                                                 </div>
                                             }
-                                            <Button data-testid='siguiente' sx={{ mb: 1, width: '100%' }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
+                                            <Button data-testid='siguiente' sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
                                                 Siguiente
                                             </Button>
                                         </div>
@@ -185,7 +185,7 @@ function Login() {
                                                     </Alert>
                                                 </div>
                                             }
-                                            <Button sx={{ mb: 1, width: '100%' }} onClick={setCredentials}>
+                                            <Button sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={setCredentials}>
                                                 Confirmar
                                             </Button>
                                         </div>
@@ -204,10 +204,10 @@ function Login() {
                                                     </Alert>
                                                 </div>
                                             }
-                                            <Button data-testid='login' sx={{ mb: 1, width: '100%' }} onClick={() => processAuthentication()}>
+                                            <Button data-testid='login' sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={() => processAuthentication()}>
                                                 Ingresar
                                             </Button>
-                                            <Button variant="secondary" sx={{ mb: 1, width: '100%' }} onClick={() => clean()}>
+                                            <Button variant="secondary" sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={() => clean()}>
                                                 Usar otro correo
                                             </Button>
                                         </div>
@@ -266,10 +266,10 @@ function Login() {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="secondary" onClick={handleContactClose}>
+                    <Button variant="secondary" onClick={handleContactClose} sx={{ transition: 'none' }}>
                         Cancelar
                     </Button>
-                    <Button onClick={handleContactSubmit}>
+                    <Button onClick={handleContactSubmit} sx={{ transition: 'none' }}>
                         Enviar
                     </Button>
                 </DialogActions>
