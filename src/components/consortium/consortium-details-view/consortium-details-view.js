@@ -17,8 +17,6 @@ const BasicConsortiumDetails = props => {
 
     const address = () => consortium ? consortium.address : ''
 
-    const consortiumId = () => consortium ? consortium.id : ''
-
     return (
         <Box>
             <Stack spacing={2.5}>
@@ -44,10 +42,6 @@ const BasicConsortiumDetails = props => {
                 value={address()}
                 onChange={event => props.handleChange({ 'address': event.target.value })}
             />
-                {consortiumId() && <Box sx={{ p: 1.5, bgcolor: 'grey.100', borderRadius: 1, border: '1px solid', borderColor: 'grey.300' }}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>ID del Consorcio</Typography>
-                    <Typography variant="body2" sx={{ fontFamily: 'monospace', wordBreak: 'break-all', mt: 0.5 }} color="text.secondary">{consortiumId()}</Typography>
-                </Box>}
                 <Divider />
                 <Box>
                     <Typography variant="subtitle1" fontWeight={700} color="primary.dark">Unidades funcionales</Typography>
@@ -89,12 +83,15 @@ const AdvancedConsortiumDetails = props => {
                     value={memberValue()}
                     onChange={event => props.handleSettingChange({ 'memberValues': event.target.value })}
                 />
-
-                {consortium.id && <Box sx={{ mt: 1, p: 2, border: '1px solid', borderColor: 'error.light', borderRadius: 1.5, backgroundColor: 'rgba(211, 47, 47, 0.04)' }}>
-                    <Typography variant="subtitle2" color="error.main" fontWeight={700}>Zona de peligro</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1.5 }}>Desactivar este consorcio no se puede revertir.</Typography>
-                    <MuiButton variant="outlined" color="error" onClick={disableConsortium}>Desactivar consorcio</MuiButton>
-                </Box>}
+                {consortium?.id && <TextField
+                    fullWidth
+                    size="small"
+                    label="ID del Consorcio"
+                    type="text"
+                    value={consortium.id}
+                    InputProps={{ readOnly: true }}
+                    data-testid='consortium-id'
+                />}
             </Stack>
         </Box>
     )

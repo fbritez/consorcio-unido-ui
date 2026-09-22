@@ -26,7 +26,6 @@ const ConsortiumsGeneralView = (props) => {
                         <Typography variant="h4" sx={{ color: 'primary.dark', fontSize: { xs: 28, md: 34 } }}>Administrar consorcios</Typography>
                         <Typography variant="body2" color="text.secondary">Gestiona los datos, unidades funcionales y configuración de cada consorcio.</Typography>
                     </Box>
-                    <Chip label={`${user?.email || ''}`} variant="outlined" color="primary" sx={{ maxWidth: '100%' }} />
                 </Stack>
                 <Grid container spacing={2.5} alignItems="flex-start">
                     <Grid item xs={12} lg={3}>
