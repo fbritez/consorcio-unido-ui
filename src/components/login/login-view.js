@@ -270,7 +270,6 @@ function Login() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
         </>
     );
 }
