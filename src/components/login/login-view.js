@@ -102,6 +102,7 @@ function Login() {
     }, [validEmail, firstLogin]);
 
     return (
+        <>
         <Box sx={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
             <Box sx={{ background: '#FFFFFF', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
                 <Box sx={{ textAlign: 'center', color: '#1B2945' }}>
@@ -270,6 +271,7 @@ function Login() {
                 </DialogActions>
             </Dialog>
         </Box>
+        </>
     );
 }
 
