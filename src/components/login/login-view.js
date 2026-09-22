@@ -102,37 +102,33 @@ function Login() {
     }, [validEmail, firstLogin]);
 
     return (
-        <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1B2945 0%, #2C4068 55%, #5278C5 100%)', py: 4 }}>
-            <Container maxWidth="lg" sx={{ height: '100%' }}>
-                <Grid container spacing={4} sx={{ minHeight: 'calc(100vh - 32px)', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+            <Box sx={{ background: '#FFFFFF', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
+                <Box sx={{ textAlign: 'center', color: '#1B2945' }}>
+                    <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2, color: '#1B2945' }}>
+                        Bienvenido
+                    </Typography>
+                    <Typography variant="h6" sx={{ mb: 4, color: '#5278C5' }}>
+                        Plataforma de Gestión de Consorcios
+                    </Typography>
+                    <Box
+                        component="img"
+                        src={logo}
+                        alt="Consorcio Unido"
+                        sx={{
+                            width: 200,
+                            height: 150,
+                            objectFit: 'contain',
+                            mb: 4
+                        }}
+                    />
+                    <Typography variant="body1" sx={{ color: '#2C4068', maxWidth: 400, mx: 'auto' }}>
+                        Accede a tu cuenta para gestionar tu consorcio de manera eficiente y segura
+                    </Typography>
+                </Box>
+            </Box>
 
-                    <Grid item xs={12} sm={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Box sx={{ textAlign: 'center', color: 'white' }}>
-                            <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
-                                Bienvenido
-                            </Typography>
-                            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-                                Plataforma de Gestión de Consorcios
-                            </Typography>
-                            <Box
-                                component="img"
-                                src={logo}
-                                alt="Consorcio Unido"
-                                sx={{
-                                    width: 200,
-                                    height: 150,
-                                    objectFit: 'contain',
-                                    mb: 4,
-                                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
-                                }}
-                            />
-                            <Typography variant="body1" sx={{ opacity: 0.8, maxWidth: 400, mx: 'auto' }}>
-                                Accede a tu cuenta para gestionar tu consorcio de manera eficiente y segura
-                            </Typography>
-                        </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={6}>
+            <Box sx={{ background: 'linear-gradient(135deg, #1B2945 0%, #2C4068 55%, #5278C5 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, borderLeft: '1px solid #ddd' }}>
                         <Card sx={{
                             width: '100%',
                             p: { xs: 2, sm: 3 },
@@ -216,26 +212,25 @@ function Login() {
                             </Card.Body>
                         </Card>
 
-                        <Box sx={{ mt: 3, textAlign: 'center' }}>
-                            <Link
-                                component="button"
-                                variant="body2"
-                                onClick={handleContactOpen}
-                                sx={{
-                                    color: 'white',
-                                    textDecoration: 'none',
-                                    fontSize: '0.95rem',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
-                                }}
-                            >
-                                ¿Necesitas ayuda? Contacta con los administradores
-                            </Link>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </Container>
+                <Box sx={{ mt: 3, textAlign: 'center' }}>
+                    <Link
+                        component="button"
+                        variant="body2"
+                        onClick={handleContactOpen}
+                        sx={{
+                            color: 'white',
+                            textDecoration: 'none',
+                            fontSize: '0.95rem',
+                            '&:hover': {
+                                textDecoration: 'underline'
+                            }
+                        }}
+                    >
+                        ¿Necesitas ayuda? Contacta con los administradores
+                    </Link>
+                </Box>
+            </Box>
+        </Box>
 
             <Dialog open={openContact} onClose={handleContactClose} maxWidth="sm" fullWidth>
                 <DialogTitle>Contactar a los Administradores</DialogTitle>
