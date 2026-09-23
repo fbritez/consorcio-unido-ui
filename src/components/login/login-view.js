@@ -114,10 +114,16 @@ function Login() {
         '& .MuiInputLabel-root.Mui-focused': { color: '#FFFFFF' },
     };
 
+    const footerLinkStyles = {
+        color: '#FFFFFF',
+        textDecoration: 'none',
+        '&:hover': { textDecoration: 'underline' },
+    };
+
     return (
-        <Box sx={{ minHeight: '100vh', background: '#EEE9D5', py: 4 }}>
-            <Container maxWidth="lg" sx={{ height: '100%' }}>
-                <Grid container spacing={4} sx={{ minHeight: 'calc(100vh - 32px)', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ minHeight: '100vh', background: '#EEE9D5', display: 'flex', flexDirection: 'column' }}>
+            <Container maxWidth="lg" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', py: 4 }}>
+                <Grid container spacing={4} sx={{ alignItems: 'center', justifyContent: 'center' }}>
 
                     <Grid item xs={12} sm={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <Box sx={{ textAlign: 'center', color: '#2C4068' }}>
@@ -238,9 +244,7 @@ function Login() {
                                     color: '#2C4068',
                                     textDecoration: 'none',
                                     fontSize: '0.95rem',
-                                    '&:hover': {
-                                        textDecoration: 'underline'
-                                    }
+                                    '&:hover': { textDecoration: 'underline' }
                                 }}
                             >
                                 ¿Necesitas ayuda? Contacta con los administradores
@@ -249,6 +253,25 @@ function Login() {
                     </Grid>
                 </Grid>
             </Container>
+
+            <Box component="footer" sx={{ textAlign: 'center', backgroundColor: '#2C4068', color: '#FFFFFF', py: 2.5, px: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                    <Link component="button" variant="body2" onClick={handleContactOpen} sx={footerLinkStyles}>
+                        Contacto
+                    </Link>
+                    <Box component="span" sx={{ opacity: 0.45 }}>|</Box>
+                    <Link href="#" variant="body2" sx={footerLinkStyles}>
+                        Términos y condiciones
+                    </Link>
+                    <Box component="span" sx={{ opacity: 0.45 }}>|</Box>
+                    <Link href="#" variant="body2" sx={footerLinkStyles}>
+                        Política de privacidad
+                    </Link>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.75 }}>
+                    © {new Date().getFullYear()} Consorcio Unido. Todos los derechos reservados.
+                </Typography>
+            </Box>
 
             <Dialog open={openContact} onClose={handleContactClose} maxWidth="sm" fullWidth>
                 <DialogTitle>Contactar a los Administradores</DialogTitle>
