@@ -101,52 +101,70 @@ function Login() {
     useEffect(() => {
     }, [validEmail, firstLogin]);
 
-    return (
-        <>
-        <Box sx={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
-            <Box sx={{ background: '#FFFFFF', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
-                <Box sx={{ textAlign: 'center', color: '#1B2945' }}>
-                    <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2, color: '#1B2945' }}>
-                        Bienvenido
-                    </Typography>
-                    <Typography variant="h6" sx={{ mb: 4, color: '#5278C5' }}>
-                        Plataforma de Gestión de Consorcios
-                    </Typography>
-                    <Box
-                        component="img"
-                        src={logo}
-                        alt="Consorcio Unido"
-                        sx={{
-                            width: 200,
-                            height: 150,
-                            objectFit: 'contain',
-                            mb: 4
-                        }}
-                    />
-                    <Typography variant="body1" sx={{ color: '#2C4068', maxWidth: 400, mx: 'auto' }}>
-                        Accede a tu cuenta para gestionar tu consorcio de manera eficiente y segura
-                    </Typography>
-                </Box>
-            </Box>
+    const inputStyles = {
+        '& .MuiOutlinedInput-root': {
+            backgroundColor: '#FFFFFF',
+            '& fieldset': { borderColor: 'rgba(255,255,255,0.5)' },
+            '&:hover fieldset': { borderColor: '#FFFFFF' },
+            '&.Mui-focused fieldset': { borderColor: '#FFFFFF' },
+        },
+        '& .MuiInputBase-input': { color: '#1B2945' },
+        '& .MuiInputBase-input::placeholder': { color: '#5A6B8C', opacity: 1 },
+        '& .MuiInputLabel-root': { color: '#FFFFFF' },
+        '& .MuiInputLabel-root.Mui-focused': { color: '#FFFFFF' },
+    };
 
-            <Box sx={{ background: 'linear-gradient(135deg, #1B2945 0%, #2C4068 55%, #5278C5 100%)', display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, borderLeft: '1px solid #ddd' }}>
+    return (
+        <Box sx={{ minHeight: '100vh', background: '#EEE9D5', py: 4 }}>
+            <Container maxWidth="lg" sx={{ height: '100%' }}>
+                <Grid container spacing={4} sx={{ minHeight: 'calc(100vh - 32px)', alignItems: 'center', justifyContent: 'center' }}>
+
+                    <Grid item xs={12} sm={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Box sx={{ textAlign: 'center', color: '#2C4068' }}>
+                            <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2, color: '#2C4068' }}>
+                                Bienvenido
+                            </Typography>
+                            <Typography variant="h6" sx={{ mb: 4, opacity: 0.9, color: '#2C4068' }}>
+                                Plataforma de Gestión de Consorcios
+                            </Typography>
+                            <Box
+                                component="img"
+                                src={logo}
+                                alt="Consorcio Unido"
+                                sx={{
+                                    width: 200,
+                                    height: 150,
+                                    objectFit: 'contain',
+                                    mb: 4,
+                                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                                }}
+                            />
+                            <Typography variant="body1" sx={{ opacity: 0.8, maxWidth: 400, mx: 'auto', color: '#2C4068' }}>
+                                Accede a tu cuenta para gestionar tu consorcio de manera eficiente y segura
+                            </Typography>
+                        </Box>
+                    </Grid>
+
+                    <Grid item xs={12} sm={12} md={6}>
                         <Card sx={{
                             width: '100%',
                             p: { xs: 2, sm: 3 },
                             boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                            borderRadius: 2
+                            borderRadius: 2,
+                            backgroundColor: '#2C4068'
                         }}>
                             <Card.Body>
                                 <Box sx={{ mb: 3 }}>
-                                    <Card.Title sx={{ fontSize: '1.5rem' }}>
+                                    <Card.Title sx={{ fontSize: '1.5rem', color: 'white' }}>
                                         Inicia Sesión
                                     </Card.Title>
                                 </Box>
-                                <Card.Text>
+                                <Card.Text sx={{ color: 'white' }}>
                                     {!validEmail && (
                                         <div>
                                             <Form.Group controlId="" sx={{ width: '100%', mb: 3 }}>
-                                                <EmailField fullWidth data-testid='email' label="Correo electrónico" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
+                                                <Form.Label sx={{ color: 'white' }}>Correo electrónico</Form.Label>
+                                                <EmailField fullWidth sx={inputStyles} data-testid='email' placeholder="nombre@correo.com" required value={email || ''} onChange={event => setEmail(event.target.value)} disabled={disableEmail} />
                                             </Form.Group>
                                             {
                                                 !validEmail && loaded &&
@@ -156,23 +174,23 @@ function Login() {
                                                     </Alert>
                                                 </div>
                                             }
-                                            <Button data-testid='siguiente' sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
+                                            <Button data-testid='siguiente' sx={{ mb: 1, width: '100%', transition: 'none', color: 'white', backgroundColor: 'rgba(255,255,255,0.2)', '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }, '&.Mui-disabled': { backgroundColor: '#1B2945', color: 'rgba(255,255,255,0.45)' } }} onClick={() => validateEmail(email)} disabled={!isValidEmail(email || '')}>
                                                 Siguiente
                                             </Button>
                                         </div>
                                     )}
                                     {validEmail && firstLogin && (
                                         <div>
-                                            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+                                            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500, color: 'white' }}>
                                                 Crea tu contraseña
                                             </Typography>
                                             <Form.Group controlId="formBasicPassword">
-                                                <Form.Label>Ingrese su nuevo password</Form.Label>
-                                                <Form.Control type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
+                                                <Form.Label sx={{ color: 'white' }}>Ingrese su nuevo password</Form.Label>
+                                                <Form.Control sx={inputStyles} type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
                                             </Form.Group>
                                             <Form.Group controlId="formConfirmPassword">
-                                                <Form.Label>Confirme su nuevo password</Form.Label>
-                                                <Form.Control type="password" placeholder="Confirmar Password" onChange={event => { setConfirmPassword(event.target.value) }} />
+                                                <Form.Label sx={{ color: 'white' }}>Confirme su nuevo password</Form.Label>
+                                                <Form.Control sx={inputStyles} type="password" placeholder="Confirmar Password" onChange={event => { setConfirmPassword(event.target.value) }} />
                                             </Form.Group>
                                             {
                                                 invalidPassword &&
@@ -182,7 +200,7 @@ function Login() {
                                                     </Alert>
                                                 </div>
                                             }
-                                            <Button sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={setCredentials}>
+                                            <Button sx={{ mb: 1, width: '100%', transition: 'none', color: 'white', backgroundColor: 'rgba(255,255,255,0.2)', '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' } }} onClick={setCredentials}>
                                                 Confirmar
                                             </Button>
                                         </div>
@@ -190,21 +208,19 @@ function Login() {
                                     {validEmail && !firstLogin && (
                                         <div>
                                             <Form.Group controlId="formBasicPassword">
-                                                <Form.Label>Contraseña</Form.Label>
-                                                <Form.Control data-testid='password' type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
+                                                <Form.Label sx={{ color: 'white' }}>Contraseña</Form.Label>
+                                                <Form.Control sx={inputStyles} data-testid='password' type="password" placeholder="Password" onChange={event => { setPassword(event.target.value) }} />
                                             </Form.Group>
                                             {
                                                 invalidPassword &&
-                                                <div>
-                                                    <Alert variant='danger'>
-                                                        Contraseña incorrecta
-                                                    </Alert>
-                                                </div>
+                                                <Alert variant='danger' sx={{ mb: 2 }}>
+                                                    Contraseña incorrecta
+                                                </Alert>
                                             }
-                                            <Button data-testid='login' sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={() => processAuthentication()}>
+                                            <Button data-testid='login' sx={{ mb: 1, width: '100%', transition: 'none', color: 'white', backgroundColor: 'rgba(255,255,255,0.2)', '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' } }} onClick={() => processAuthentication()}>
                                                 Ingresar
                                             </Button>
-                                            <Button variant="secondary" sx={{ mb: 1, width: '100%', transition: 'none' }} onClick={() => clean()}>
+                                            <Button variant="secondary" sx={{ mb: 1, width: '100%', transition: 'none', color: 'white', backgroundColor: 'rgba(255,255,255,0.2)', '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' } }} onClick={() => clean()}>
                                                 Usar otro correo
                                             </Button>
                                         </div>
@@ -213,25 +229,26 @@ function Login() {
                             </Card.Body>
                         </Card>
 
-                <Box sx={{ mt: 3, textAlign: 'center' }}>
-                    <Link
-                        component="button"
-                        variant="body2"
-                        onClick={handleContactOpen}
-                        sx={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            fontSize: '0.95rem',
-                            '&:hover': {
-                                textDecoration: 'underline'
-                            }
-                        }}
-                    >
-                        ¿Necesitas ayuda? Contacta con los administradores
-                    </Link>
-                </Box>
-            </Box>
-        </Box>
+                        <Box sx={{ mt: 3, textAlign: 'center' }}>
+                            <Link
+                                component="button"
+                                variant="body2"
+                                onClick={handleContactOpen}
+                                sx={{
+                                    color: '#2C4068',
+                                    textDecoration: 'none',
+                                    fontSize: '0.95rem',
+                                    '&:hover': {
+                                        textDecoration: 'underline'
+                                    }
+                                }}
+                            >
+                                ¿Necesitas ayuda? Contacta con los administradores
+                            </Link>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Container>
 
             <Dialog open={openContact} onClose={handleContactClose} maxWidth="sm" fullWidth>
                 <DialogTitle>Contactar a los Administradores</DialogTitle>
@@ -242,6 +259,13 @@ function Login() {
                         value={contactName}
                         onChange={(e) => setContactName(e.target.value)}
                         margin="normal"
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: '#FFFFFF',
+                                '& fieldset': { borderColor: '#333333' }
+                            },
+                            '& .MuiInputBase-input': { color: '#000000' }
+                        }}
                     />
                     <TextField
                         fullWidth
@@ -250,6 +274,13 @@ function Login() {
                         value={contactEmail}
                         onChange={(e) => setContactEmail(e.target.value)}
                         margin="normal"
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: '#FFFFFF',
+                                '& fieldset': { borderColor: '#333333' }
+                            },
+                            '& .MuiInputBase-input': { color: '#FFFFFF' }
+                        }}
                     />
                     <TextField
                         fullWidth
@@ -259,18 +290,25 @@ function Login() {
                         value={contactMessage}
                         onChange={(e) => setContactMessage(e.target.value)}
                         margin="normal"
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: '#FFFFFF',
+                                '& fieldset': { borderColor: '#333333' }
+                            },
+                            '& .MuiInputBase-input': { color: '#000000' }
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button variant="secondary" onClick={handleContactClose} sx={{ transition: 'none' }}>
                         Cancelar
                     </Button>
-                    <Button onClick={handleContactSubmit} sx={{ transition: 'none' }}>
+                    <Button onClick={handleContactSubmit} sx={{ transition: 'none', backgroundColor: '#999999', color: 'white', '&:hover': { backgroundColor: '#777777' } }}>
                         Enviar
                     </Button>
                 </DialogActions>
             </Dialog>
-        </>
+        </Box>
     );
 }
 
